@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
-	"encoding/base64"
 	"encoding/hex"
-	"flag"
 	"fmt"
 	"log"
 	"sync"
@@ -18,8 +16,6 @@ import (
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
-	drouting "github.com/libp2p/go-libp2p/p2p/discovery/routing"
-	dutil "github.com/libp2p/go-libp2p/p2p/discovery/util"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/multiformats/go-multihash"
 )
@@ -38,9 +34,8 @@ var (
 )
 
 type Node struct {
-	host    *host.Host
-	kdht    *dht.IpfsDHT
-	routing *drouting.RoutingDiscovery
+	host *host.Host
+	kdht *dht.IpfsDHT
 }
 
 func NewNode() *Node {
@@ -52,46 +47,38 @@ func (n Node) h() host.Host {
 }
 
 func (n *Node) Start() {
-	var port int
-	flag.IntVar(&port, "port", 3210, "Listen Port")
-	bsPeers := addrList{}
-	flag.Var(&bsPeers, "peer", "Bootstrap Peers")
-	b64PrivKey := ""
-	flag.StringVar(&b64PrivKey, "priv", "nil", "Private Key")
-
-	flag.Parse()
-
 	ctx := context.Background()
 
-	keyBytes, err := base64.StdEncoding.DecodeString(b64PrivKey)
-	if err != nil {
-		panic(err)
-	}
-	priv, err := crypto.UnmarshalPrivateKey(keyBytes)
-	if err != nil {
-		panic(err)
-	}
+	port, bsPeers, priv := ParseFlags()
+
+	n.CreateHost(ctx, port, priv)
+
+	n.CreateDHT(ctx, dht.Mode(dht.ModeServer)) // Always run in server mode for peer discovery
+
+	n.ConnectBootstrapPeers(ctx, bsPeers)
+
+	go n.discoverProviders(ctx) // Keep discovering new providers who might offer the same
+
+	n.kdht.Bootstrap(ctx) // Important to bootstrap after finding other providers
+
+	// go n.FindPeers(ctx) // Not required as long as you have one bootstrap node
+
+	n.SetupNotifications()
+}
+
+func (n *Node) CreateHost(ctx context.Context, port int, privKey crypto.PrivKey) {
 	listen, _ := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port))
 
-	host, err := libp2p.New(libp2p.ListenAddrs(listen), libp2p.Identity(priv))
+	host, err := libp2p.New(libp2p.ListenAddrs(listen), libp2p.Identity(privKey))
 	if err != nil {
 		panic(err)
 	}
 	n.host = &host
-	if len(bsPeers) == 0 {
-		for _, addr := range n.h().Addrs() {
-			log.Println(fmt.Sprintf("%s/p2p/%s", addr, n.h().ID()))
-		}
+	// Log the hosting addresses
+	for _, addr := range n.h().Addrs() {
+		log.Println(fmt.Sprintf("%s/p2p/%s", addr, n.h().ID()))
 	}
 	log.Println("Host Created: ", host.ID().Pretty(), "port: ", port)
-	// Always run in server mode for peer discovery
-	n.CreateDHT(ctx, dht.Mode(dht.ModeServer))
-	n.ConnectBootstrapPeers(ctx, bsPeers)
-	// n.AnnounceForDiscovery(ctx)
-	go n.discoverProviders(ctx)
-	n.kdht.Bootstrap(ctx)
-	go n.FindPeers(ctx)
-	go n.SetupNotifications()
 }
 
 func (n *Node) CreateDHT(ctx context.Context, options ...dht.Option) {
@@ -118,13 +105,6 @@ func (n *Node) ConnectBootstrapPeers(ctx context.Context, addrs addrList) {
 			}
 		}()
 	}
-}
-
-func (n *Node) AnnounceForDiscovery(ctx context.Context) {
-	routingDiscovery := drouting.NewRoutingDiscovery(n.kdht)
-	dutil.Advertise(ctx, routingDiscovery, RENDEVOUS_STRING)
-	n.routing = routingDiscovery
-	log.Println("Announced for discovery")
 }
 
 func (n *Node) FindPeers(ctx context.Context) {
@@ -197,7 +177,10 @@ func (n *Node) GetRandomPeers() {
 func (n *Node) SetupNotifications() {
 	n.h().Network().Notify(&network.NotifyBundle{
 		ConnectedF: func(x network.Network, c network.Conn) {
-			log.Println(n.h().ID().Pretty(), "{CONNECTED}", c.RemotePeer().Pretty())
+			log.Println(n.h().ID().Pretty(), "{ CONNECTED }", c.RemotePeer().Pretty())
+		},
+		DisconnectedF: func(x network.Network, c network.Conn) {
+			log.Println(n.h().ID().Pretty(), "{ DISCONNECTED }", c.RemotePeer().Pretty())
 		},
 	})
 }
