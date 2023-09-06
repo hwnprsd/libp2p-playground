@@ -1,0 +1,14 @@
+syntax = "proto3"
+
+// This will be for external Http / GRPC Calls
+message Request {
+	string type = 1;
+	Payload payload = 2;
+}
+
+message Payload {
+	bytes walletAddress = 1;
+	bytes data = 2;
+	bytes signature = 3;
+}
+

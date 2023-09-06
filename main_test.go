@@ -18,3 +18,6 @@ func Test_CreatePrivKKey(t *testing.T) {
 	base64Key := base64.StdEncoding.EncodeToString(keyBytes)
 	log.Println(base64Key)
 }
+
+func Test_CreateWalletData(t *testing.T) {
+}

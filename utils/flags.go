@@ -1,7 +1,6 @@
-package main
+package utils
 
 import (
-	"encoding/base64"
 	"flag"
 	"strings"
 
@@ -10,9 +9,9 @@ import (
 )
 
 // A new type we need for writing a custom flag parser
-type addrList []maddr.Multiaddr
+type AddrList []maddr.Multiaddr
 
-func (al *addrList) String() string {
+func (al *AddrList) String() string {
 	strs := make([]string, len(*al))
 	for i, addr := range *al {
 		strs[i] = addr.String()
@@ -20,7 +19,7 @@ func (al *addrList) String() string {
 	return strings.Join(strs, ",")
 }
 
-func (al *addrList) Set(value string) error {
+func (al *AddrList) Set(value string) error {
 	addr, err := maddr.NewMultiaddr(value)
 	if err != nil {
 		return err
@@ -29,19 +28,15 @@ func (al *addrList) Set(value string) error {
 	return nil
 }
 
-func ParseFlags() (int, addrList, crypto.PrivKey) {
+func ParseFlags() (int, AddrList, crypto.PrivKey) {
 	var port int
 	flag.IntVar(&port, "port", 3210, "Listen Port")
-	bsPeers := addrList{}
+	bsPeers := AddrList{}
 	flag.Var(&bsPeers, "peer", "Bootstrap Peers")
 	b64PrivKey := ""
 	flag.StringVar(&b64PrivKey, "priv", "nil", "Private Key")
 	flag.Parse()
-	keyBytes, err := base64.StdEncoding.DecodeString(b64PrivKey)
-	if err != nil {
-		panic(err)
-	}
-	priv, err := crypto.UnmarshalPrivateKey(keyBytes)
+	priv, err := ParseB64Key(b64PrivKey)
 	if err != nil {
 		panic(err)
 	}

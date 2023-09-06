@@ -1,10 +1,11 @@
-package main
+package node
 
 import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"libp2p-playground/utils"
 	"log"
 	"sync"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/ipfs/go-cid"
 	"github.com/libp2p/go-libp2p"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
@@ -36,6 +38,7 @@ var (
 type Node struct {
 	host *host.Host
 	kdht *dht.IpfsDHT
+	ps   *pubsub.PubSub
 }
 
 func NewNode() *Node {
@@ -46,16 +49,27 @@ func (n Node) h() host.Host {
 	return *n.host
 }
 
+func (n Node) shortID() string {
+	return n.h().ID().Pretty()[:5]
+}
+
+func (n Node) PeerID() peer.ID {
+	return n.h().ID()
+}
+
 func (n *Node) Start() {
 	ctx := context.Background()
 
-	port, bsPeers, priv := ParseFlags()
+	port, bsPeers, priv := utils.ParseFlags()
+
+	pub, _ := priv.GetPublic().Raw()
+	log.Println("Public Key", hex.EncodeToString(pub))
 
 	n.CreateHost(ctx, port, priv)
 
 	n.CreateDHT(ctx, dht.Mode(dht.ModeServer)) // Always run in server mode for peer discovery
 
-	n.ConnectBootstrapPeers(ctx, bsPeers)
+	n.ConnectBootstrapPeers(ctx, bsPeers) // Connect to bootstrap peers, who run DHT in Server (Full) mode
 
 	go n.discoverProviders(ctx) // Keep discovering new providers who might offer the same
 
@@ -64,6 +78,8 @@ func (n *Node) Start() {
 	// go n.FindPeers(ctx) // Not required as long as you have one bootstrap node
 
 	n.SetupNotifications()
+
+	n.SetupPubSub(ctx)
 }
 
 func (n *Node) CreateHost(ctx context.Context, port int, privKey crypto.PrivKey) {
@@ -91,7 +107,7 @@ func (n *Node) CreateDHT(ctx context.Context, options ...dht.Option) {
 
 }
 
-func (n *Node) ConnectBootstrapPeers(ctx context.Context, addrs addrList) {
+func (n *Node) ConnectBootstrapPeers(ctx context.Context, addrs utils.AddrList) {
 	var wg sync.WaitGroup
 	for _, addr := range addrs {
 		peerInfo, _ := peer.AddrInfoFromP2pAddr(addr)
@@ -178,6 +194,7 @@ func (n *Node) SetupNotifications() {
 	n.h().Network().Notify(&network.NotifyBundle{
 		ConnectedF: func(x network.Network, c network.Conn) {
 			log.Println(n.h().ID().Pretty(), "{ CONNECTED }", c.RemotePeer().Pretty())
+			x.ClosePeer(c.RemotePeer())
 		},
 		DisconnectedF: func(x network.Network, c network.Conn) {
 			log.Println(n.h().ID().Pretty(), "{ DISCONNECTED }", c.RemotePeer().Pretty())
