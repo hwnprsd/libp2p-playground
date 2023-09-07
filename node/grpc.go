@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// TODO: Handle errors
 func (n *Node) SetupGRPC() {
 	lis, err := net.Listen("tcp", ":5123")
 	if err != nil {
@@ -27,6 +28,7 @@ func (n *Node) SetupGRPC() {
 	if err := proto.RegisterTransactionServiceHandlerFromEndpoint(ctx, mux, "localhost:5123", opts); err != nil {
 		panic(err)
 	}
+
 	go func() {
 		log.Println("Running GRPC/HTTP on port", 5050)
 		log.Fatal(http.ListenAndServe(":5050", mux))
@@ -36,9 +38,4 @@ func (n *Node) SetupGRPC() {
 	go func() {
 		log.Fatal(grpcServer.Serve(lis))
 	}()
-}
-
-func (n *Node) SendTransaction(ctx context.Context, req *proto.Transaction) (*proto.TransactionResponse, error) {
-	// Your logic here
-	return &proto.TransactionResponse{Success: true, Msg: "ok"}, nil
 }

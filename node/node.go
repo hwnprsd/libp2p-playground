@@ -82,7 +82,9 @@ func (n *Node) Start(config utils.Config) {
 
 	n.SetupPubSub(ctx)
 
-	n.SetupGRPC()
+	if config.GetShouldRunExternalRPCServer() {
+		n.SetupGRPC()
+	}
 }
 
 func (n *Node) CreateHost(ctx context.Context, port int, privKey crypto.PrivKey) {

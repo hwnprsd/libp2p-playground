@@ -5,7 +5,7 @@ test:	build
 	@./p2p -port 6666
 
 node1:
-	@./p2p -port 5434 -priv CAMSeTB3AgEBBCA+P7yPsaWQKwUefEvcAjNd0eyZLtyLoNPcZqaig+/pB6AKBggqhkjOPQMBB6FEA0IABJFpkamZPf7Q4/EJSeFXmozOap987FW6uNw9m2lb5D9irgdLskYizJroFAjtQ7bPYMLt3+oI9tQCeBg7Ss0wjPw=
+	@./p2p -port 5434 -rpc=true -priv CAMSeTB3AgEBBCA+P7yPsaWQKwUefEvcAjNd0eyZLtyLoNPcZqaig+/pB6AKBggqhkjOPQMBB6FEA0IABJFpkamZPf7Q4/EJSeFXmozOap987FW6uNw9m2lb5D9irgdLskYizJroFAjtQ7bPYMLt3+oI9tQCeBg7Ss0wjPw= 
 
 node2: 
 	@./p2p -port 5555 -peer /ip4/127.0.0.1/tcp/5434/p2p/Qma7HB5QJ4fzHHfSUPJi4ghMx6iTLdKNoYHhmvz9GAXYfK -priv CAMSeTB3AgEBBCBn23a67eSJa+pCyY+IiEVCHVuD/OOr9BZK2hjCBwrvkqAKBggqhkjOPQMBB6FEA0IABOZCchDryMK5b2ima23p55r8+plJDWtRbbhzSR6uoswck4nPpVqDWUI0Xn81eWKJxK2qLwLrdoE4nTQWxIoCklI=
