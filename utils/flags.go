@@ -4,7 +4,6 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/libp2p/go-libp2p/core/crypto"
 	maddr "github.com/multiformats/go-multiaddr"
 )
 
@@ -28,17 +27,37 @@ func (al *AddrList) Set(value string) error {
 	return nil
 }
 
-func ParseFlags() (int, AddrList, crypto.PrivKey) {
-	var port int
-	flag.IntVar(&port, "port", 3210, "Listen Port")
-	bsPeers := AddrList{}
-	flag.Var(&bsPeers, "peer", "Bootstrap Peers")
+var isCliFlagsParsed = false
+
+func GetCliConfig() Config {
+	if !isCliFlagsParsed {
+		ParseFlags()
+	}
+	return cliConfig
+}
+
+func ParseFlags() {
+	// Port
+	flag.IntVar(&cliConfig.port, "port", 3210, "Listen Port")
+
+	// Peers
+	flag.Var(&cliConfig.peers, "peer", "Bootstrap Peers")
+
+	// Should Run ExternalRPC Server
+
+	// Private Key
 	b64PrivKey := ""
 	flag.StringVar(&b64PrivKey, "priv", "nil", "Private Key")
+
+	// External RPC Server
+	flag.BoolVar(&cliConfig.externalRpcServer, "rpc", false, "Should run an RPC Server for external calls")
+
 	flag.Parse()
+
 	priv, err := ParseB64Key(b64PrivKey)
+	cliConfig.privKey = priv
 	if err != nil {
 		panic(err)
 	}
-	return port, bsPeers, priv
+	isCliFlagsParsed = true
 }

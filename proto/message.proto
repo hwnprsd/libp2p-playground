@@ -1,7 +1,20 @@
-syntax = "proto3"
+syntax = "proto3";
+import "google/api/annotations.proto";
+
+option go_package = "./proto";
+
+
+service TransactionService {
+	rpc SendTransaction (Transaction) returns (TransactionResponse){
+	        option (google.api.http) = {
+		    post: "/v1/transaction"
+		    body: "*"
+		};
+	}
+}
 
 // This will be for external Http / GRPC Calls
-message Request {
+message Transaction {
 	string type = 1;
 	Payload payload = 2;
 }
@@ -10,5 +23,10 @@ message Payload {
 	bytes walletAddress = 1;
 	bytes data = 2;
 	bytes signature = 3;
+}
+
+message TransactionResponse {
+	bool success = 1;
+	string msg = 2;
 }
 

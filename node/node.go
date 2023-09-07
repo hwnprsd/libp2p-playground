@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"libp2p-playground/proto"
 	"libp2p-playground/utils"
 	"log"
 	"sync"
@@ -39,6 +40,8 @@ type Node struct {
 	host *host.Host
 	kdht *dht.IpfsDHT
 	ps   *pubsub.PubSub
+
+	proto.UnimplementedTransactionServiceServer
 }
 
 func NewNode() *Node {
@@ -57,19 +60,17 @@ func (n Node) PeerID() peer.ID {
 	return n.h().ID()
 }
 
-func (n *Node) Start() {
+func (n *Node) Start(config utils.Config) {
 	ctx := context.Background()
 
-	port, bsPeers, priv := utils.ParseFlags()
-
-	pub, _ := priv.GetPublic().Raw()
+	pub, _ := config.GetPrivKey().GetPublic().Raw()
 	log.Println("Public Key", hex.EncodeToString(pub))
 
-	n.CreateHost(ctx, port, priv)
+	n.CreateHost(ctx, config.GetPort(), config.GetPrivKey())
 
 	n.CreateDHT(ctx, dht.Mode(dht.ModeServer)) // Always run in server mode for peer discovery
 
-	n.ConnectBootstrapPeers(ctx, bsPeers) // Connect to bootstrap peers, who run DHT in Server (Full) mode
+	n.ConnectBootstrapPeers(ctx, config.GetPeers()) // Connect to bootstrap peers, who run DHT in Server (Full) mode
 
 	go n.discoverProviders(ctx) // Keep discovering new providers who might offer the same
 
@@ -80,6 +81,8 @@ func (n *Node) Start() {
 	n.SetupNotifications()
 
 	n.SetupPubSub(ctx)
+
+	n.SetupGRPC()
 }
 
 func (n *Node) CreateHost(ctx context.Context, port int, privKey crypto.PrivKey) {

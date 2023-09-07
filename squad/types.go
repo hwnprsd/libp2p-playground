@@ -41,6 +41,7 @@ func NewSquad(peerId peer.ID, pb *pubsub.PubSub) *Squad {
 }
 
 func (s *Squad) Init(sc SCInterface) {
+	s.sc = sc
 	squadId := s.sc.GetSquadID(s.peerId)
 	peers := s.sc.GetPeerList(squadId)
 	for _, peer := range peers {
@@ -49,7 +50,6 @@ func (s *Squad) Init(sc SCInterface) {
 	s.RegisterTopicValidator(squadId, s.validator)
 	log.Println(squadId, "- Squad Initialized")
 	s.isInitialized = true
-	s.sc = sc
 	s.id = squadId
 }
 
