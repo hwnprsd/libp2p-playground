@@ -2,8 +2,8 @@ package node
 
 import (
 	"context"
-	smartcontract "libp2p-playground/smart_contract"
-	"libp2p-playground/squad"
+	smartcontract "github.com/solace-labs/skeyn/smart_contract"
+	"github.com/solace-labs/skeyn/squad"
 )
 
 func (n *Node) SetupSquads(ctx context.Context) {

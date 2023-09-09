@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 
-	proto "libp2p-playground/proto"
+	proto "github.com/solace-labs/skeyn/proto"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"

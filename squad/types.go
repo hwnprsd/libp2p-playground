@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/libp2p/go-libp2p/core/peer"
-	"libp2p-playground/common"
-	"libp2p-playground/smart_contract"
+	"github.com/solace-labs/skeyn/common"
+	"github.com/solace-labs/skeyn/smart_contract"
 )
 
 type SquadPeers map[peer.ID]bool

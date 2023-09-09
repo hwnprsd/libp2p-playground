@@ -1,7 +1,7 @@
 package smartcontract
 
 import (
-	"libp2p-playground/utils"
+	"github.com/solace-labs/skeyn/utils"
 
 	"github.com/libp2p/go-libp2p/core/peer"
 )

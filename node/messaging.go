@@ -2,9 +2,9 @@ package node
 
 import (
 	"context"
-	"libp2p-playground/common"
-	proto "libp2p-playground/proto"
-	"libp2p-playground/utils"
+	"github.com/solace-labs/skeyn/common"
+	proto "github.com/solace-labs/skeyn/proto"
+	"github.com/solace-labs/skeyn/utils"
 	"log"
 
 	"github.com/libp2p/go-libp2p/core/network"

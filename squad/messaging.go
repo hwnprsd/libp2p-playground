@@ -2,7 +2,7 @@ package squad
 
 import (
 	"errors"
-	"libp2p-playground/common"
+	"github.com/solace-labs/skeyn/common"
 	"log"
 
 	"github.com/libp2p/go-libp2p/core/protocol"

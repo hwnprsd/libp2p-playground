@@ -1,8 +1,8 @@
 package main
 
 import (
-	"libp2p-playground/node"
-	"libp2p-playground/utils"
+	"github.com/solace-labs/skeyn/node"
+	"github.com/solace-labs/skeyn/utils"
 )
 
 func main() {
