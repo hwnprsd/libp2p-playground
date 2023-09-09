@@ -1,6 +1,7 @@
 package squad
 
 import (
+	"errors"
 	"libp2p-playground/common"
 	"log"
 
@@ -17,18 +18,29 @@ import (
 // 	return nil
 // }
 
-// INCOMING MESSAGES
-func (s *Squad) HandleIncomingMessages(ch <-chan []byte) error {
-	go func() {
-		for data := range ch {
-			log.Println(string(data))
-		}
-	}()
+func (s *Squad) VerifyMessage(msg common.Message) error {
+	if !s.peers[msg.GetPeerID()] {
+		return errors.New("Invalid sender")
+	}
 	return nil
 }
 
+// INCOMING MESSAGES
+func (s *Squad) HandleIncomingMessages(ch <-chan common.Message) {
+	go func() {
+		for msg := range ch {
+			err := s.VerifyMessage(msg)
+			if err != nil {
+				log.Println("Message from invalid sender!")
+				continue
+			}
+			log.Println(string(msg.GetData()))
+		}
+	}()
+}
+
 func (s *Squad) Broadcast(protocol protocol.ID, data []byte) {
-	for peer := range s.acl {
+	for peer := range s.peers {
 		s.writeCh <- common.NodeMessage{PeerID: peer, Data: data, Protocol: protocol}
 	}
 	log.Println("Broadcast data complete")

@@ -2,10 +2,12 @@ package node
 
 import (
 	"context"
-	"github.com/libp2p/go-libp2p/core/network"
 	"libp2p-playground/common"
 	proto "libp2p-playground/proto"
+	"libp2p-playground/utils"
 	"log"
+
+	"github.com/libp2p/go-libp2p/core/network"
 
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
@@ -47,18 +49,21 @@ func (n *Node) SendTransaction(ctx context.Context, req *proto.Transaction) (*pr
 }
 
 // Message sink
-func (n *Node) setupMessageRecieverHandler(ctx context.Context) chan []byte {
-	ch := make(chan []byte)
+func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.Message {
+	ch := make(chan common.Message)
 	go func() {
 		// Setup recievers
 		n.h().SetStreamHandler(common.DKG_PROTOCOL, func(s network.Stream) {
-			buf := make([]byte, 1024)
-			n, err := s.Read(buf)
+			data, err := utils.ReadStream(s)
 			if err != nil {
-				log.Println(err)
+				log.Println("Error Reading Stream Data")
 			}
-			log.Println("Message received ", string(buf[:n]))
-			ch <- buf
+			nodeMessage := common.NodeMessage{
+				PeerID:   s.Conn().RemotePeer(),
+				Data:     data,
+				Protocol: common.DKG_PROTOCOL,
+			}
+			ch <- nodeMessage
 		})
 
 	}()

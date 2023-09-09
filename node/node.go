@@ -55,7 +55,7 @@ func (n Node) h() host.Host {
 	return *n.host
 }
 
-func (n Node) shortID() string {
+func (n Node) ShortID() string {
 	return n.h().ID().Pretty()[:5]
 }
 
@@ -107,7 +107,7 @@ func (n *Node) CreateHost(ctx context.Context, port int, privKey crypto.PrivKey)
 	n.host = &host
 	// Log the hosting addresses
 	for _, addr := range n.h().Addrs() {
-		log.Println(fmt.Sprintf("%s/p2p/%s", addr, n.h().ID()))
+		log.Printf("%s/p2p/%s\n", addr, n.h().ID())
 	}
 	log.Println("Host Created: ", host.ID().Pretty(), "port: ", port)
 }
@@ -118,7 +118,10 @@ func (n *Node) CreateDHT(ctx context.Context, options ...dht.Option) {
 		panic(err)
 	}
 	n.kdht = kdht
-	kdht.Provide(ctx, networkCid, true)
+	err = kdht.Provide(ctx, networkCid, true)
+	if err != nil {
+		panic(err)
+	}
 
 }
 
@@ -142,6 +145,8 @@ func (n *Node) FindPeers(ctx context.Context) {
 	ticker := time.NewTicker(time.Second * 10)
 	for {
 		select {
+		case <-ctx.Done():
+			return
 		case <-ticker.C:
 			go n.GetRandomPeers()
 		}
@@ -155,8 +160,8 @@ func (n *Node) discoverProviders(ctx context.Context) {
 		time.Sleep(2 * time.Second)
 		// log.Println(n.h().Network().Peers())
 		select {
-		// case <-ctx.Done():
-		// 	return
+		case <-ctx.Done():
+			return
 		case peer := <-ch:
 			if peer.ID == "" {
 				continue
@@ -165,9 +170,13 @@ func (n *Node) discoverProviders(ctx context.Context) {
 				continue
 			}
 			// TODO: Make this more strict. Connect only if certain criteria matches
-			n.h().Connect(ctx, peer)
+			err := n.h().Connect(ctx, peer)
+			if err != nil {
+				log.Println("Error connecing to peer", peer.ID)
+				continue
+			}
 			log.Println((*n.host).ID().String(), " [PROVIDER] ", peer.ID)
-			n.kdht.Bootstrap(ctx)
+			_ = n.kdht.Bootstrap(ctx)
 		}
 	}
 }
