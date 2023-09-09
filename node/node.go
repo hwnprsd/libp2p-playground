@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"libp2p-playground/proto"
+	smartcontract "libp2p-playground/smart_contract"
+	"libp2p-playground/squad"
 	"libp2p-playground/utils"
 	"log"
 	"sync"
@@ -14,7 +16,6 @@ import (
 	"github.com/ipfs/go-cid"
 	"github.com/libp2p/go-libp2p"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
@@ -37,9 +38,11 @@ var (
 )
 
 type Node struct {
-	host *host.Host
-	kdht *dht.IpfsDHT
-	ps   *pubsub.PubSub
+	host  *host.Host
+	kdht  *dht.IpfsDHT
+	squad *squad.Squad
+
+	smartContract smartcontract.NetworkState
 
 	proto.UnimplementedTransactionServiceServer
 }
@@ -74,13 +77,20 @@ func (n *Node) Start(config utils.Config) {
 
 	go n.discoverProviders(ctx) // Keep discovering new providers who might offer the same
 
-	n.kdht.Bootstrap(ctx) // Important to bootstrap after finding other providers
+	err := n.kdht.Bootstrap(ctx) // Important to bootstrap after finding other providers
+	if err != nil {
+		panic(err)
+	}
 
 	// go n.FindPeers(ctx) // Not required as long as you have one bootstrap node
 
 	n.SetupNotifications()
 
-	n.SetupPubSub(ctx)
+	n.SetupSquads(ctx)
+
+	n.squad.HandleIncomingMessages(n.setupMessageRecieverHandler(context.Background()))
+
+	// TODO: Setup an updater which keeps checking if the network state is valid with the node
 
 	if config.GetShouldRunExternalRPCServer() {
 		n.SetupGRPC()
@@ -199,10 +209,10 @@ func (n *Node) SetupNotifications() {
 	n.h().Network().Notify(&network.NotifyBundle{
 		ConnectedF: func(x network.Network, c network.Conn) {
 			log.Println(n.h().ID().Pretty(), "{ CONNECTED }", c.RemotePeer().Pretty())
-			x.ClosePeer(c.RemotePeer())
 		},
 		DisconnectedF: func(x network.Network, c network.Conn) {
 			log.Println(n.h().ID().Pretty(), "{ DISCONNECTED }", c.RemotePeer().Pretty())
+			log.Println("CONNECTED TO:", len(n.h().Network().Peers()))
 		},
 	})
 }

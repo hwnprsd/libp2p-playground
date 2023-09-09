@@ -1,9 +1,10 @@
 package squad
 
 import (
+	"libp2p-playground/common"
 	"log"
 
-	pubsub "github.com/libp2p/go-libp2p-pubsub"
+	"github.com/libp2p/go-libp2p/core/protocol"
 )
 
 // This will broadcast largely TSS Messages
@@ -16,20 +17,19 @@ import (
 // 	return nil
 // }
 
-// This will largely recieve TSS Messages
-func (s *Squad) RecieveMessages(ch chan<- *pubsub.Message) error {
-	sub, err := s.Subscribe(s.id)
-	if err != nil {
-		return err
-	}
+// INCOMING MESSAGES
+func (s *Squad) HandleIncomingMessages(ch <-chan []byte) error {
 	go func() {
-		for {
-			msg, err := sub.Next(s.ctx)
-			if err != nil {
-				log.Println("Message Err: ", err)
-			}
-			ch <- msg
+		for data := range ch {
+			log.Println(string(data))
 		}
 	}()
 	return nil
+}
+
+func (s *Squad) Broadcast(protocol protocol.ID, data []byte) {
+	for peer := range s.acl {
+		s.writeCh <- common.NodeMessage{PeerID: peer, Data: data, Protocol: protocol}
+	}
+	log.Println("Broadcast data complete")
 }

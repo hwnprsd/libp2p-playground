@@ -2,17 +2,22 @@ package node
 
 import (
 	"context"
+	smartcontract "libp2p-playground/smart_contract"
 	"libp2p-playground/squad"
-
-	"github.com/libp2p/go-libp2p-pubsub"
 )
 
-func (n *Node) SetupPubSub(ctx context.Context) {
-	ps, err := pubsub.NewGossipSub(ctx, n.h())
+func (n *Node) SetupSquads(ctx context.Context) {
+	// TODO: Make it live in prod
+	n.smartContract = &smartcontract.TestContract{}
+
+	squadId, err := n.smartContract.GetSquadID(n.PeerID())
 	if err != nil {
 		panic(err)
 	}
-	n.ps = ps
-	sqd := squad.NewSquad(n.PeerID(), ps)
-	sqd.Init(&squad.TestContract{})
+
+	sqd := squad.NewSquad(n.PeerID())
+
+	sqd.Init(ctx, n.smartContract, squadId, n.setupOutgoingMessageHandler(ctx))
+
+	n.squad = sqd
 }

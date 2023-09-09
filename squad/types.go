@@ -6,16 +6,17 @@ import (
 
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/peer"
+	"libp2p-playground/common"
+	"libp2p-playground/smart_contract"
 )
 
 type Squad struct {
-	*pubsub.PubSub
 	isInitialized bool
 	acl           map[peer.ID]bool
 	peerId        peer.ID
-	id            string
-	sc            SCInterface
+	sc            smartcontract.NetworkState
 	ctx           context.Context
+	writeCh       chan<- common.Message
 }
 
 func (cps *Squad) VerifyPeer(peerID peer.ID) bool {
@@ -30,27 +31,30 @@ func (cps *Squad) validator(ctx context.Context, peer peer.ID, msg *pubsub.Messa
 	return pubsub.ValidationReject
 }
 
-func NewSquad(peerId peer.ID, pb *pubsub.PubSub) *Squad {
+func NewSquad(peerId peer.ID) *Squad {
 	return &Squad{
-		PubSub:        pb,
 		peerId:        peerId,
 		acl:           make(map[peer.ID]bool),
 		isInitialized: false,
-		id:            "",
+		// DKG and Key Info
 	}
 }
 
-func (s *Squad) Init(sc SCInterface) {
+func (s *Squad) Init(ctx context.Context, sc smartcontract.NetworkState, squadId string, writeCh chan<- common.Message) {
 	s.sc = sc
-	squadId := s.sc.GetSquadID(s.peerId)
-	peers := s.sc.GetPeerList(squadId)
+	peers, err := s.sc.GetPeerList(squadId)
+	if err != nil {
+		panic(err)
+	}
 	for _, peer := range peers {
 		s.acl[peer] = true
 	}
-	s.RegisterTopicValidator(squadId, s.validator)
+
 	log.Println(squadId, "- Squad Initialized")
+
 	s.isInitialized = true
-	s.id = squadId
+	s.ctx = ctx
+	s.writeCh = writeCh
 }
 
 func (s Squad) RefreshACL(ctx context.Context) {
@@ -62,3 +66,8 @@ func (s Squad) MakeACLVerificationMessage() {
 }
 
 func (s Squad) VerifyACL() {}
+
+func (s Squad) Publish(message []byte) error {
+	log.Println("Message Published")
+	return nil
+}
