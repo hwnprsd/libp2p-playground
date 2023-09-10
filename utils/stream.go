@@ -8,8 +8,11 @@ import (
 	"github.com/libp2p/go-libp2p/core/network"
 )
 
-const MAX_MESSAGE_LEN = 8000
+const (
+	MAX_MESSAGE_LEN = 8000
+)
 
+// Data = Len + Actual Data
 func ReadStream(stream network.Stream) ([]byte, error) {
 	lenBuf := make([]byte, 4)
 	if _, err := io.ReadFull(stream, lenBuf); err != nil {
@@ -31,7 +34,6 @@ func ReadStream(stream network.Stream) ([]byte, error) {
 	return buf, nil
 }
 
-// Data = Len + Actual Data
 func WriteStream(stream network.Stream, data []byte) error {
 	lenBuf := make([]byte, 4)
 
