@@ -120,7 +120,7 @@ func (n *Node) CreateDHT(ctx context.Context, options ...dht.Option) {
 	n.kdht = kdht
 	err = kdht.Provide(ctx, networkCid, true)
 	if err != nil {
-		panic(err)
+		log.Println("[WARN] Providing DHT: ", err)
 	}
 
 }

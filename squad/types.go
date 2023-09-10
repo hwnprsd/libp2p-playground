@@ -4,12 +4,12 @@ import (
 	"context"
 	"log"
 
+	"github.com/bnb-chain/tss-lib/ecdsa/keygen"
+	"github.com/bnb-chain/tss-lib/tss"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/smart_contract"
 )
-
-type SquadPeers map[peer.ID]bool
 
 type Squad struct {
 	isInitialized bool
@@ -18,6 +18,10 @@ type Squad struct {
 	sc            smartcontract.NetworkState
 	ctx           context.Context
 	writeCh       chan<- common.Message
+
+	preParams   *keygen.LocalPreParams
+	keyGenParty *tss.Party
+	keyGenData  *keygen.LocalPartySaveData
 }
 
 func (cps *Squad) VerifyPeer(peerID peer.ID) bool {
@@ -32,14 +36,6 @@ func NewSquad(peerId peer.ID) *Squad {
 		isInitialized: false,
 		// DKG and Key Info
 	}
-}
-
-func (s SquadPeers) List() []peer.ID {
-	keys := make([]peer.ID, 0, len(s))
-	for i := range s {
-		keys = append(keys, i)
-	}
-	return keys
 }
 
 func (s *Squad) Init(ctx context.Context, sc smartcontract.NetworkState, squadId string, writeCh chan<- common.Message) {
