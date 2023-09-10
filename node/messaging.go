@@ -42,15 +42,15 @@ func (n *Node) SendTransaction(ctx context.Context, req *proto.Transaction) (*pr
 	// Check if address and wallet address are a part of the squad
 
 	// TODO: Broadcast random shit to peers
-	n.squad.Broadcast(common.DKG_PROTOCOL, []byte("DKG DATA"))
+	n.squad.InitKeygen(ctx)
 
 	// Your logic here
 	return &proto.TransactionResponse{Success: true, Msg: "ok"}, nil
 }
 
 // Message sink
-func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.Message {
-	ch := make(chan common.Message)
+func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.IncomingMessage {
+	ch := make(chan common.IncomingMessage)
 	go func() {
 		// Setup recievers
 		n.h().SetStreamHandler(common.DKG_PROTOCOL, func(s network.Stream) {
@@ -58,8 +58,9 @@ func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.Me
 			log.Println("Completed Reading")
 			if err != nil {
 				log.Println("Error Reading Stream Data")
+				log.Println(err)
 			}
-			log.Println("GOT IT")
+
 			nodeMessage := common.NodeMessage{
 				PeerID:   s.Conn().RemotePeer(),
 				Data:     data,
@@ -73,8 +74,8 @@ func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.Me
 }
 
 // Message Export Hub for the node
-func (n *Node) setupOutgoingMessageHandler(ctx context.Context) chan common.Message {
-	ch := make(chan common.Message)
+func (n *Node) setupOutgoingMessageHandler(ctx context.Context) chan common.OutgoingMessage {
+	ch := make(chan common.OutgoingMessage)
 	go func() {
 		for {
 			select {

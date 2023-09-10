@@ -23,7 +23,7 @@ import (
 // 	return nil
 // }
 
-func (s *Squad) VerifyMessage(msg common.Message) error {
+func (s *Squad) VerifyMessage(msg common.IncomingMessage) error {
 	if !s.peers[msg.GetPeerID()] {
 		return errors.New("Invalid sender")
 	}
@@ -31,7 +31,7 @@ func (s *Squad) VerifyMessage(msg common.Message) error {
 }
 
 // INCOMING MESSAGES
-func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.Message) {
+func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.IncomingMessage) {
 	log.Println("Handling incoming messages")
 	for {
 		select {
@@ -44,7 +44,6 @@ func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.Mes
 				log.Println("Message from invalid sender!")
 				continue
 			}
-			log.Println("DKG Message Recieved")
 			switch msg.GetProtocol() {
 			case common.DKG_PROTOCOL:
 				// Parse the data into a DKG Understandable message
@@ -53,10 +52,11 @@ func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.Mes
 					log.Println("Error unmarshalling DKG Data from wire", err)
 					continue
 				}
-				s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
+				_, err := s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
+				if err != nil {
+					log.Println("[ERR] Updating keygen party", err)
+				}
 			}
-
-			log.Println(string(msg.GetData()))
 		}
 	}
 }

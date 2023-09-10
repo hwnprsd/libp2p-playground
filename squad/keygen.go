@@ -3,9 +3,11 @@ package squad
 import (
 	"context"
 	"log"
+	"time"
 
-	"github.com/bnb-chain/tss-lib/ecdsa/keygen"
-	"github.com/bnb-chain/tss-lib/tss"
+	"github.com/bnb-chain/tss-lib/v2/ecdsa/keygen"
+	"github.com/bnb-chain/tss-lib/v2/tss"
+
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
@@ -17,13 +19,16 @@ func (s *Squad) InitKeygen(ctx context.Context) chan error {
 	if !shouldContinueInit {
 		return nil
 	}
-	go func() {
-		err := (*s.keyGenParty).Start()
-		if err != nil {
-			log.Println("ERR", err)
-		}
-	}()
+
+	go s.startKeygen()
 	return errChan
+}
+
+func (s *Squad) startKeygen() {
+	err := (*s.keyGenParty).Start()
+	if err != nil {
+		log.Println("ERR", err)
+	}
 }
 
 // Should continue init
@@ -33,7 +38,7 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 		return false, nil
 	}
 
-	parties := s.peers.SortedPartyIDs()
+	parties := s.SortedPartyIDs()
 
 	peerCtx := tss.NewPeerContext(parties)
 
@@ -42,20 +47,23 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	errChan = make(chan error)
 	outChan := make(chan tss.Message)
 	endChan := make(chan keygen.LocalPartySaveData)
-	party := keygen.NewLocalParty(params, outChan, endChan, *s.preParams)
+	preParams, _ := keygen.GeneratePreParams(1 * time.Minute)
+	party := keygen.NewLocalParty(params, outChan, endChan, *preParams)
 	s.keyGenParty = &party
+	s.preParams = preParams
 
 	go func() {
 		for {
 			select {
-			case <-ctx.Done():
-				return
+			// case <-ctx.Done():
+			// 	return
 			case outData := <-outChan:
 				s.handleKeygenMessage(outData)
 			case endData := <-endChan:
 				s.handleKeygenEnd(endData)
 			}
 		}
+
 	}()
 
 	return true, errChan
@@ -81,7 +89,7 @@ func (s *Squad) UpdateKeygenParty(
 	peerId peer.ID,
 ) (chan error, error) {
 	errChan := s.InitKeygen(ctx)
-	fromPartyId := ToPartyID(&peerId)
+	fromPartyId := s.GetSortedPartyID(&peerId)
 
 	_, err := (*s.keyGenParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
 	if err != nil {
@@ -92,10 +100,11 @@ func (s *Squad) UpdateKeygenParty(
 
 // Messages coming in from the TSS-Lib channels
 func (s *Squad) handleKeygenMessage(message tss.Message) {
-	// n.logger.Sugar().Infof("[KEYGEN] Received a message from outChan: %+v", message)
+	log.Printf("[KEYGEN] Received a message from outChan: %+v\n", message)
 	dest := message.GetTo()
+	wireBytes, _, _ := message.WireBytes()
 	outMsg, err := protoc.Marshal(&proto.UpdateMessage{
-		WireMessage: message.WireMsg().Message.Value,
+		WireMessage: wireBytes,
 		IsBroadcast: dest == nil,
 		Payload:     []byte(""),
 	})
@@ -107,6 +116,10 @@ func (s *Squad) handleKeygenMessage(message tss.Message) {
 		// Broadcast
 		s.Broadcast(common.DKG_PROTOCOL, outMsg)
 	} else {
-		s.SendTo(*ToPeerID(dest[0]), common.DKG_PROTOCOL, outMsg)
+		toPeerId := s.ToPeerID(dest[0])
+		if toPeerId == nil {
+			panic("Unable to reconstruct Peer ID from TSS Party ID")
+		}
+		s.SendTo(*toPeerId, common.DKG_PROTOCOL, outMsg)
 	}
 }

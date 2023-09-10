@@ -4,9 +4,10 @@ import (
 	"context"
 	"log"
 
-	"github.com/bnb-chain/tss-lib/ecdsa/keygen"
-	"github.com/bnb-chain/tss-lib/tss"
+	"github.com/bnb-chain/tss-lib/v2/ecdsa/keygen"
+	"github.com/bnb-chain/tss-lib/v2/tss"
 	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/peerstore"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/smart_contract"
 )
@@ -17,7 +18,9 @@ type Squad struct {
 	peerId        peer.ID
 	sc            smartcontract.NetworkState
 	ctx           context.Context
-	writeCh       chan<- common.Message
+	writeCh       chan<- common.OutgoingMessage
+
+	peerStore peerstore.Peerstore
 
 	preParams   *keygen.LocalPreParams
 	keyGenParty *tss.Party
@@ -38,12 +41,19 @@ func NewSquad(peerId peer.ID) *Squad {
 	}
 }
 
-func (s *Squad) Init(ctx context.Context, sc smartcontract.NetworkState, squadId string, writeCh chan<- common.Message) {
+func (s *Squad) Init(ctx context.Context,
+	sc smartcontract.NetworkState,
+	squadId string,
+	writeCh chan<- common.OutgoingMessage,
+	peerStore peerstore.Peerstore,
+) {
 	s.sc = sc
 	peers, err := s.sc.GetPeerList(squadId)
 	if err != nil {
 		panic(err)
 	}
+	// How to check if these peers are connected or not
+	// Some communication is required from the node
 	for _, peer := range peers {
 		s.peers[peer] = true
 	}
@@ -53,6 +63,7 @@ func (s *Squad) Init(ctx context.Context, sc smartcontract.NetworkState, squadId
 	s.isInitialized = true
 	s.ctx = ctx
 	s.writeCh = writeCh
+	s.peerStore = peerStore
 }
 
 func (s Squad) RefreshACL(ctx context.Context) {

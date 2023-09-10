@@ -3,6 +3,7 @@ module github.com/solace-labs/skeyn
 go 1.19
 
 require (
+	github.com/bnb-chain/tss-lib/v2 v2.0.0
 	github.com/ethereum/go-ethereum v1.12.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.17.1
 	github.com/ipfs/go-cid v0.4.1
@@ -13,7 +14,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
-	github.com/bnb-chain/tss-lib v1.5.0 
 )
 
 require (

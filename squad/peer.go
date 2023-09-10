@@ -1,11 +1,9 @@
 package squad
 
 import (
-	"log"
 	"math/big"
 
-	"github.com/bnb-chain/tss-lib/tss"
-	"github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/bnb-chain/tss-lib/v2/tss"
 	"github.com/libp2p/go-libp2p/core/peer"
 )
 
@@ -19,47 +17,54 @@ func (s SquadPeers) List() []peer.ID {
 	return keys
 }
 
-func (s SquadPeers) SortedPartyIDs() []*tss.PartyID {
+func (s SquadPeers) Match(moniker string) *peer.ID {
+	for peer := range s {
+		if peer.String() == moniker {
+			return &peer
+		}
+	}
+	return nil
+}
+
+func (s Squad) SortedPartyIDs() []*tss.PartyID {
 	parties := make([]*tss.PartyID, 0)
-	for _, p := range s.List() {
-		parties = append(parties, ToPartyID(&p))
+	for p := range s.peers {
+		parties = append(parties, s.ToPartyID(&p))
 	}
 	parties = tss.SortPartyIDs(parties)
 	return parties
 }
 
 // TODO: Better error handling
-func ToPartyID(p *peer.ID) *tss.PartyID {
-	pubKey, err := p.ExtractPublicKey()
-	if err != nil {
-		log.Println("ERR extracting pub key", p)
-		return nil
-	}
-	pubKeyBytes, err := pubKey.Raw()
-	if err != nil {
-		log.Println("ERR extracting bytes from pubkey", p)
-		return nil
-	}
+func (s Squad) ToPartyID(p *peer.ID) *tss.PartyID {
+	pubKeyBytes, _ := s.peerStore.PubKey(*p).Raw()
 	return tss.NewPartyID(
-		string(*p),
-		p.ShortString(),
+		p.String(),
+		p.String(), // So, things can be reproducable
 		new(big.Int).SetBytes(pubKeyBytes),
 	)
 }
 
-func (s Squad) PartyID() *tss.PartyID {
-	return ToPartyID(&s.peerId)
+func (s Squad) GetSortedPartyID(p *peer.ID) *tss.PartyID {
+	targetId := s.ToPartyID(p)
+	for _, id := range s.SortedPartyIDs() {
+		if id.Id == targetId.Id {
+			return id
+		}
+	}
+	return nil
 }
 
-func ToPeerID(p *tss.PartyID) *peer.ID {
-	pubKeyBytes := p.GetKey()
-	pubkey, err := crypto.UnmarshalPublicKey(pubKeyBytes)
-	if err != nil {
-		log.Println("Error marshalling pubkey", err)
+func (s Squad) PartyID() *tss.PartyID {
+	selfId := s.ToPartyID(&s.peerId)
+	for _, id := range s.SortedPartyIDs() {
+		if id.Id == selfId.Id {
+			return id
+		}
 	}
-	id, err := peer.IDFromPublicKey(pubkey)
-	if err != nil {
-		log.Println("Error creating ID from pubkey", err)
-	}
-	return &id
+	return nil
+}
+
+func (s Squad) ToPeerID(p *tss.PartyID) *peer.ID {
+	return s.peers.Match(p.GetMoniker())
 }

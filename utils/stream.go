@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	MAX_MESSAGE_LEN = 8000
+	MAX_MESSAGE_LEN = 500_000 // bytes
 )
 
 // Data = Len + Actual Data
@@ -22,7 +22,7 @@ func ReadStream(stream network.Stream) ([]byte, error) {
 	msgLen := binary.BigEndian.Uint32(lenBuf)
 
 	if MAX_MESSAGE_LEN > 0 && int(msgLen) > MAX_MESSAGE_LEN {
-		return nil, fmt.Errorf("message too large")
+		return nil, fmt.Errorf("message too large - %d", int(msgLen))
 	}
 
 	buf := make([]byte, msgLen)

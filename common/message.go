@@ -9,10 +9,14 @@ import (
 
 type Message interface {
 	GetProtocol() protocol.ID
-	GetPeerID() peer.ID
 	GetData() []byte
 	String() string
+	GetPeerID() peer.ID
 }
+
+type IncomingMessage = Message
+
+type OutgoingMessage = Message
 
 type NodeMessage struct {
 	Protocol protocol.ID

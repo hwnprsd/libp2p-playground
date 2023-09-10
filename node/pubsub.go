@@ -17,7 +17,9 @@ func (n *Node) SetupSquads(ctx context.Context) {
 
 	sqd := squad.NewSquad(n.PeerID())
 
-	sqd.Init(ctx, n.smartContract, squadId, n.setupOutgoingMessageHandler(ctx))
+	ps := n.h().Peerstore()
+
+	sqd.Init(ctx, n.smartContract, squadId, n.setupOutgoingMessageHandler(ctx), ps)
 
 	n.squad = sqd
 }
