@@ -15,6 +15,7 @@ import (
 )
 
 func (s *Squad) InitKeygen(ctx context.Context) chan error {
+	log.Println("Initing Keygen")
 	shouldContinueInit, errChan := s.setupKeygenParty(ctx)
 	if !shouldContinueInit {
 		return nil
@@ -47,7 +48,11 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	errChan = make(chan error)
 	outChan := make(chan tss.Message)
 	endChan := make(chan keygen.LocalPartySaveData)
-	preParams, _ := keygen.GeneratePreParams(1 * time.Minute)
+	preParams, err := keygen.GeneratePreParams(1 * time.Minute)
+	if err != nil {
+		log.Println("Error generating pre-params")
+		panic(err)
+	}
 	party := keygen.NewLocalParty(params, outChan, endChan, *preParams)
 	s.keyGenParty = &party
 	s.preParams = preParams

@@ -44,18 +44,20 @@ func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.Inc
 				log.Println("Message from invalid sender!")
 				continue
 			}
-			switch msg.GetProtocol() {
-			case common.DKG_PROTOCOL:
-				// Parse the data into a DKG Understandable message
-				updateMsg := &proto.UpdateMessage{}
-				if err := protoc.Unmarshal(msg.GetData(), updateMsg); err != nil {
-					log.Println("Error unmarshalling DKG Data from wire", err)
-					continue
-				}
-				_, err := s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
-				if err != nil {
-					log.Println("[ERR] Updating keygen party", err)
-				}
+			// Parse the data into a DKG Understandable message
+			updateMsg := &proto.UpdateMessage{}
+			if err := protoc.Unmarshal(msg.GetData(), updateMsg); err != nil {
+				log.Println("Error unmarshalling Data from wire", err)
+				continue
+			}
+			if msg.GetProtocol() == common.DKG_PROTOCOL {
+				_, err = s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
+
+			} else if msg.GetProtocol() == common.SIGNING_PROTOCOL {
+				_, err = s.UpdateSigningParty(ctx, updateMsg, msg.GetPeerID())
+			}
+			if err != nil {
+				log.Println("[ERR] Updating keygen party", err)
 			}
 		}
 	}

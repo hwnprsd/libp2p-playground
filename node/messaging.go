@@ -42,7 +42,12 @@ func (n *Node) SendTransaction(ctx context.Context, req *proto.Transaction) (*pr
 	// Check if address and wallet address are a part of the squad
 
 	// TODO: Broadcast random shit to peers
-	n.squad.InitKeygen(ctx)
+	log.Println("TYPE", req.Type)
+	if req.Type == "1" {
+		n.squad.InitKeygen(ctx)
+	} else {
+		n.squad.InitSigning(ctx, []byte("YEET"))
+	}
 
 	// Your logic here
 	return &proto.TransactionResponse{Success: true, Msg: "ok"}, nil
@@ -55,7 +60,6 @@ func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.In
 		// Setup recievers
 		n.h().SetStreamHandler(common.DKG_PROTOCOL, func(s network.Stream) {
 			data, err := utils.ReadStream(s)
-			log.Println("Completed Reading")
 			if err != nil {
 				log.Println("Error Reading Stream Data")
 				log.Println(err)
@@ -65,6 +69,21 @@ func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.In
 				PeerID:   s.Conn().RemotePeer(),
 				Data:     data,
 				Protocol: common.DKG_PROTOCOL,
+			}
+			ch <- nodeMessage
+		})
+
+		n.h().SetStreamHandler(common.SIGNING_PROTOCOL, func(s network.Stream) {
+			data, err := utils.ReadStream(s)
+			if err != nil {
+				log.Println("Error Reading Stream Data")
+				log.Println(err)
+			}
+
+			nodeMessage := common.NodeMessage{
+				PeerID:   s.Conn().RemotePeer(),
+				Data:     data,
+				Protocol: common.SIGNING_PROTOCOL,
 			}
 			ch <- nodeMessage
 		})

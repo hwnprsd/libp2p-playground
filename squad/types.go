@@ -25,6 +25,8 @@ type Squad struct {
 	preParams   *keygen.LocalPreParams
 	keyGenParty *tss.Party
 	keyGenData  *keygen.LocalPartySaveData
+
+	sigParty *tss.Party
 }
 
 func (cps *Squad) VerifyPeer(peerID peer.ID) bool {
