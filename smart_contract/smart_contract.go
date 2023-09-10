@@ -34,7 +34,7 @@ func (*TestContract) GetPeerList(squadID string) ([]peer.ID, error) {
 	pk3, _ := utils.HexToPubkey("3059301306072a8648ce3d020106082a8648ce3d03010703420004e6427210ebc8c2b96f68a66b6de9e79afcfa99490d6b516db873491eaea2cc1c9389cfa55a835942345e7f35796289c4adaa2f02eb7681389d3416c48a029252")
 	peer3, _ := peer.IDFromPublicKey(pk3)
 
-	return []peer.ID{peer2, peer3}, nil
+	return []peer.ID{peer1, peer2, peer3}, nil
 }
 
 func (*TestContract) GetWalletsUnderManagement(squadID string) ([]WalletData, error) {

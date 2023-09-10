@@ -88,7 +88,8 @@ func (n *Node) Start(config utils.Config) {
 
 	n.SetupSquads(ctx)
 
-	n.squad.HandleIncomingMessages(n.setupMessageRecieverHandler(context.Background()))
+	incomingChan := n.setupMessageRecieverHandler(ctx)
+	go n.squad.HandleIncomingMessages(ctx, incomingChan)
 
 	// TODO: Setup an updater which keeps checking if the network state is valid with the node
 

@@ -29,4 +29,3 @@ message TransactionResponse {
 	bool success = 1;
 	string msg = 2;
 }
-

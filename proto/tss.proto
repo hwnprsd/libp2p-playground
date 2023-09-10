@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+message UpdateMessage {
+	bytes wireMessage = 1;
+	bool isBroadcast = 2;
+	bytes payload = 3;
+}

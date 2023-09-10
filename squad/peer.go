@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	"github.com/bnb-chain/tss-lib/tss"
+	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
 )
 
@@ -48,4 +49,17 @@ func ToPartyID(p *peer.ID) *tss.PartyID {
 
 func (s Squad) PartyID() *tss.PartyID {
 	return ToPartyID(&s.peerId)
+}
+
+func ToPeerID(p *tss.PartyID) *peer.ID {
+	pubKeyBytes := p.GetKey()
+	pubkey, err := crypto.UnmarshalPublicKey(pubKeyBytes)
+	if err != nil {
+		log.Println("Error marshalling pubkey", err)
+	}
+	id, err := peer.IDFromPublicKey(pubkey)
+	if err != nil {
+		log.Println("Error creating ID from pubkey", err)
+	}
+	return &id
 }

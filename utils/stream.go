@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io"
 
@@ -10,24 +11,38 @@ import (
 const MAX_MESSAGE_LEN = 8000
 
 func ReadStream(stream network.Stream) ([]byte, error) {
-	var result []byte
-	buf := make([]byte, 1024)
-
-	for {
-		n, err := stream.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
-
-		result = append(result, buf[:n]...)
-
-		if MAX_MESSAGE_LEN > 0 && len(result) > MAX_MESSAGE_LEN {
-			return nil, fmt.Errorf("received data exceeds maximum size")
-		}
+	lenBuf := make([]byte, 4)
+	if _, err := io.ReadFull(stream, lenBuf); err != nil {
+		return nil, err
 	}
 
-	return result, nil
+	msgLen := binary.BigEndian.Uint32(lenBuf)
+
+	if MAX_MESSAGE_LEN > 0 && int(msgLen) > MAX_MESSAGE_LEN {
+		return nil, fmt.Errorf("message too large")
+	}
+
+	buf := make([]byte, msgLen)
+
+	if _, err := io.ReadFull(stream, buf); err != nil {
+		return nil, err
+	}
+
+	return buf, nil
+}
+
+// Data = Len + Actual Data
+func WriteStream(stream network.Stream, data []byte) error {
+	lenBuf := make([]byte, 4)
+
+	binary.BigEndian.PutUint32(lenBuf, uint32(len(data)))
+	if _, err := stream.Write(lenBuf); err != nil {
+		return err
+	}
+
+	if _, err := stream.Write(data); err != nil {
+		return err
+	}
+
+	return nil
 }

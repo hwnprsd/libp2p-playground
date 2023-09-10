@@ -1,10 +1,15 @@
 package squad
 
 import (
+	"context"
 	"errors"
-	"github.com/solace-labs/skeyn/common"
 	"log"
 
+	"github.com/solace-labs/skeyn/common"
+	"github.com/solace-labs/skeyn/proto"
+	protoc "google.golang.org/protobuf/proto"
+
+	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/protocol"
 )
 
@@ -26,22 +31,47 @@ func (s *Squad) VerifyMessage(msg common.Message) error {
 }
 
 // INCOMING MESSAGES
-func (s *Squad) HandleIncomingMessages(ch <-chan common.Message) {
-	go func() {
-		for msg := range ch {
+func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.Message) {
+	log.Println("Handling incoming messages")
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case msg := <-ch:
 			err := s.VerifyMessage(msg)
 			if err != nil {
 				log.Println("Message from invalid sender!")
 				continue
 			}
+			log.Println("DKG Message Recieved")
+			switch msg.GetProtocol() {
+			case common.DKG_PROTOCOL:
+				// Parse the data into a DKG Understandable message
+				updateMsg := &proto.UpdateMessage{}
+				if err := protoc.Unmarshal(msg.GetData(), updateMsg); err != nil {
+					log.Println("Error unmarshalling DKG Data from wire", err)
+					continue
+				}
+				s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
+			}
+
 			log.Println(string(msg.GetData()))
 		}
-	}()
+	}
 }
 
 func (s *Squad) Broadcast(protocol protocol.ID, data []byte) {
 	for peer := range s.peers {
+		if peer == s.peerId {
+			continue
+		}
 		s.writeCh <- common.NodeMessage{PeerID: peer, Data: data, Protocol: protocol}
 	}
 	log.Println("Broadcast data complete")
+}
+
+func (s *Squad) SendTo(peer peer.ID, protocol protocol.ID, data []byte) {
+	s.writeCh <- common.NodeMessage{PeerID: peer, Data: data, Protocol: protocol}
+	log.Println("Message sent to", peer)
 }

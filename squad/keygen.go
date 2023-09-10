@@ -6,6 +6,10 @@ import (
 
 	"github.com/bnb-chain/tss-lib/ecdsa/keygen"
 	"github.com/bnb-chain/tss-lib/tss"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/solace-labs/skeyn/common"
+	"github.com/solace-labs/skeyn/proto"
+	protoc "google.golang.org/protobuf/proto"
 )
 
 func (s *Squad) InitKeygen(ctx context.Context) (*chan tss.Message, *chan error) {
@@ -45,6 +49,8 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 			select {
 			case <-ctx.Done():
 				return
+			case outData := <-*outChan:
+				s.handleKeygenMessage(outData)
 			case endData := <-endChan:
 				s.handleKeygenEnd(endData)
 			}
@@ -71,15 +77,37 @@ func (s *Squad) handleKeygenEnd(data keygen.LocalPartySaveData) {
 func (s *Squad) UpdateKeygenParty(
 	ctx context.Context,
 	message UpdateMessage,
+	peerId peer.ID,
 ) (*chan tss.Message, *chan error, error) {
 	outChan, errChan := s.InitKeygen(ctx)
-	fromPartyId := ToPartyID(message.GetPeerID())
+	fromPartyId := ToPartyID(&peerId)
 
 	_, err := (*s.keyGenParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
 	if err != nil {
 		return nil, nil, err
 	}
 	return outChan, errChan, nil
+}
+
+// Messages coming in from the TSS-Lib channels
+func (s *Squad) handleKeygenMessage(message tss.Message) {
+	// n.logger.Sugar().Infof("[KEYGEN] Received a message from outChan: %+v", message)
+	dest := message.GetTo()
+	outMsg, err := protoc.Marshal(&proto.UpdateMessage{
+		WireMessage: message.WireMsg().Message.Value,
+		IsBroadcast: dest == nil,
+		Payload:     []byte(""),
+	})
+	if err != nil {
+		log.Println("{ERR} - Error serializing message to protobuf obj")
+	}
+
+	if dest == nil {
+		// Broadcast
+		s.Broadcast(common.DKG_PROTOCOL, outMsg)
+	} else {
+		s.SendTo(*ToPeerID(dest[0]), common.DKG_PROTOCOL, outMsg)
+	}
 }
 
 func (n *Squad) setupChannels() (*chan tss.Message, *chan error) {

@@ -55,9 +55,11 @@ func (n *Node) setupMessageRecieverHandler(ctx context.Context) <-chan common.Me
 		// Setup recievers
 		n.h().SetStreamHandler(common.DKG_PROTOCOL, func(s network.Stream) {
 			data, err := utils.ReadStream(s)
+			log.Println("Completed Reading")
 			if err != nil {
 				log.Println("Error Reading Stream Data")
 			}
+			log.Println("GOT IT")
 			nodeMessage := common.NodeMessage{
 				PeerID:   s.Conn().RemotePeer(),
 				Data:     data,
@@ -84,8 +86,8 @@ func (n *Node) setupOutgoingMessageHandler(ctx context.Context) chan common.Mess
 					log.Println("Error creating stream", err)
 					continue
 				}
-				_, err = stream.Write(msg.GetData())
-				if err != nil {
+
+				if err := utils.WriteStream(stream, msg.GetData()); err != nil {
 					log.Println("Error writing to stream", err)
 					continue
 				}
