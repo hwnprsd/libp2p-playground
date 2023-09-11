@@ -77,6 +77,7 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 func (s *Squad) handleKeygenEnd(data keygen.LocalPartySaveData) {
 	s.keyGenData = &data
 	log.Println("Keygen Complete")
+
 	// x, y := data.ECDSAPub.X(), data.ECDSAPub.Y()
 	// pk := ecdsa.PublicKey{
 	// 	Curve: tss.EC(),
