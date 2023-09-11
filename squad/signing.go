@@ -46,7 +46,10 @@ func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldCo
 		}
 		saveData := StoredSaveDataFromBytes(saveDataB)
 		s.keyGenData = saveData
-		log.Println("Stored Savedata fetched")
+		if !saveData.Validate() {
+			panic("SaveData is corrupt")
+			// TODO: Handle corrupt save data
+		}
 	}
 
 	// In an ongoing session. No need to init
