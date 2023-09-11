@@ -30,7 +30,7 @@ func (s *Squad) VerifyMessage(msg common.IncomingMessage) error {
 	return nil
 }
 
-// INCOMING MESSAGES
+// Given a recieve-only channel, this funcion will recieve messages and handle them gracefully
 func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.IncomingMessage) {
 	log.Println("Handling incoming messages")
 	for {

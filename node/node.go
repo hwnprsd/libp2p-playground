@@ -90,6 +90,8 @@ func (n *Node) Start(config utils.Config) {
 	n.SetupSquads(ctx)
 
 	incomingChan := n.setupMessageRecieverHandler(ctx)
+	// Instead of having a channel, you could just call the function on the target squad
+	// TODO: Rethink this
 	go n.squad.HandleIncomingMessages(ctx, incomingChan)
 
 	// TODO: Setup an updater which keeps checking if the network state is valid with the node
