@@ -50,14 +50,14 @@ func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.Inc
 				log.Println("Error unmarshalling Data from wire", err)
 				continue
 			}
-			if msg.GetProtocol() == common.DKG_PROTOCOL {
+			switch msg.GetProtocol() {
+			case common.DKG_PROTOCOL:
 				_, err = s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
-
-			} else if msg.GetProtocol() == common.SIGNING_PROTOCOL {
+			case common.SIGNING_PROTOCOL:
 				_, err = s.UpdateSigningParty(ctx, updateMsg, msg.GetPeerID())
 			}
 			if err != nil {
-				log.Println("[ERR] Updating keygen party", err)
+				log.Println("[ERR] Updating Keygen/Signing party", err)
 			}
 		}
 	}
