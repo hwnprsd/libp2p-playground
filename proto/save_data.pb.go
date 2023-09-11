@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.31.0
 // 	protoc        v4.23.4
-// source: proto/preparams.proto
+// source: proto/save_data.proto
 
 package proto
 
@@ -38,7 +38,7 @@ type LocalPreParams struct {
 func (x *LocalPreParams) Reset() {
 	*x = LocalPreParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_preparams_proto_msgTypes[0]
+		mi := &file_proto_save_data_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -51,7 +51,7 @@ func (x *LocalPreParams) String() string {
 func (*LocalPreParams) ProtoMessage() {}
 
 func (x *LocalPreParams) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_preparams_proto_msgTypes[0]
+	mi := &file_proto_save_data_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -64,7 +64,7 @@ func (x *LocalPreParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocalPreParams.ProtoReflect.Descriptor instead.
 func (*LocalPreParams) Descriptor() ([]byte, []int) {
-	return file_proto_preparams_proto_rawDescGZIP(), []int{0}
+	return file_proto_save_data_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *LocalPreParams) GetPaillierSK() *PrivateKey {
@@ -135,7 +135,7 @@ type LocalSecrets struct {
 func (x *LocalSecrets) Reset() {
 	*x = LocalSecrets{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_preparams_proto_msgTypes[1]
+		mi := &file_proto_save_data_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -148,7 +148,7 @@ func (x *LocalSecrets) String() string {
 func (*LocalSecrets) ProtoMessage() {}
 
 func (x *LocalSecrets) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_preparams_proto_msgTypes[1]
+	mi := &file_proto_save_data_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -161,7 +161,7 @@ func (x *LocalSecrets) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocalSecrets.ProtoReflect.Descriptor instead.
 func (*LocalSecrets) Descriptor() ([]byte, []int) {
-	return file_proto_preparams_proto_rawDescGZIP(), []int{1}
+	return file_proto_save_data_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *LocalSecrets) GetXi() []byte {
@@ -191,7 +191,7 @@ type ECPoint struct {
 func (x *ECPoint) Reset() {
 	*x = ECPoint{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_preparams_proto_msgTypes[2]
+		mi := &file_proto_save_data_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -204,7 +204,7 @@ func (x *ECPoint) String() string {
 func (*ECPoint) ProtoMessage() {}
 
 func (x *ECPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_preparams_proto_msgTypes[2]
+	mi := &file_proto_save_data_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -217,7 +217,7 @@ func (x *ECPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ECPoint.ProtoReflect.Descriptor instead.
 func (*ECPoint) Descriptor() ([]byte, []int) {
-	return file_proto_preparams_proto_rawDescGZIP(), []int{2}
+	return file_proto_save_data_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ECPoint) GetCurve() []byte {
@@ -252,7 +252,7 @@ type PublicKey struct {
 func (x *PublicKey) Reset() {
 	*x = PublicKey{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_preparams_proto_msgTypes[3]
+		mi := &file_proto_save_data_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -265,7 +265,7 @@ func (x *PublicKey) String() string {
 func (*PublicKey) ProtoMessage() {}
 
 func (x *PublicKey) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_preparams_proto_msgTypes[3]
+	mi := &file_proto_save_data_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -278,7 +278,7 @@ func (x *PublicKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublicKey.ProtoReflect.Descriptor instead.
 func (*PublicKey) Descriptor() ([]byte, []int) {
-	return file_proto_preparams_proto_rawDescGZIP(), []int{3}
+	return file_proto_save_data_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PublicKey) GetN() []byte {
@@ -303,7 +303,7 @@ type PrivateKey struct {
 func (x *PrivateKey) Reset() {
 	*x = PrivateKey{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_preparams_proto_msgTypes[4]
+		mi := &file_proto_save_data_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -316,7 +316,7 @@ func (x *PrivateKey) String() string {
 func (*PrivateKey) ProtoMessage() {}
 
 func (x *PrivateKey) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_preparams_proto_msgTypes[4]
+	mi := &file_proto_save_data_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,7 +329,7 @@ func (x *PrivateKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrivateKey.ProtoReflect.Descriptor instead.
 func (*PrivateKey) Descriptor() ([]byte, []int) {
-	return file_proto_preparams_proto_rawDescGZIP(), []int{4}
+	return file_proto_save_data_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *PrivateKey) GetPublicKey() *PublicKey {
@@ -386,7 +386,7 @@ type LocalPartySaveData struct {
 func (x *LocalPartySaveData) Reset() {
 	*x = LocalPartySaveData{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_proto_preparams_proto_msgTypes[5]
+		mi := &file_proto_save_data_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -399,7 +399,7 @@ func (x *LocalPartySaveData) String() string {
 func (*LocalPartySaveData) ProtoMessage() {}
 
 func (x *LocalPartySaveData) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_preparams_proto_msgTypes[5]
+	mi := &file_proto_save_data_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -412,7 +412,7 @@ func (x *LocalPartySaveData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocalPartySaveData.ProtoReflect.Descriptor instead.
 func (*LocalPartySaveData) Descriptor() ([]byte, []int) {
-	return file_proto_preparams_proto_rawDescGZIP(), []int{5}
+	return file_proto_save_data_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *LocalPartySaveData) GetLocalPreParams() *LocalPreParams {
@@ -478,11 +478,11 @@ func (x *LocalPartySaveData) GetEcdsaPub() *ECPoint {
 	return nil
 }
 
-var File_proto_preparams_proto protoreflect.FileDescriptor
+var File_proto_save_data_proto protoreflect.FileDescriptor
 
-var file_proto_preparams_proto_rawDesc = []byte{
-	0x0a, 0x15, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x70, 0x72, 0x65, 0x70, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc1, 0x01, 0x0a, 0x0e, 0x4c, 0x6f, 0x63, 0x61,
+var file_proto_save_data_proto_rawDesc = []byte{
+	0x0a, 0x15, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x73, 0x61, 0x76, 0x65, 0x5f, 0x64, 0x61, 0x74,
+	0x61, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc1, 0x01, 0x0a, 0x0e, 0x4c, 0x6f, 0x63, 0x61,
 	0x6c, 0x50, 0x72, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x2b, 0x0a, 0x0a, 0x70, 0x61,
 	0x69, 0x6c, 0x6c, 0x69, 0x65, 0x72, 0x53, 0x4b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b,
 	0x2e, 0x50, 0x72, 0x69, 0x76, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x52, 0x0a, 0x70, 0x61, 0x69,
@@ -537,19 +537,19 @@ var file_proto_preparams_proto_rawDesc = []byte{
 }
 
 var (
-	file_proto_preparams_proto_rawDescOnce sync.Once
-	file_proto_preparams_proto_rawDescData = file_proto_preparams_proto_rawDesc
+	file_proto_save_data_proto_rawDescOnce sync.Once
+	file_proto_save_data_proto_rawDescData = file_proto_save_data_proto_rawDesc
 )
 
-func file_proto_preparams_proto_rawDescGZIP() []byte {
-	file_proto_preparams_proto_rawDescOnce.Do(func() {
-		file_proto_preparams_proto_rawDescData = protoimpl.X.CompressGZIP(file_proto_preparams_proto_rawDescData)
+func file_proto_save_data_proto_rawDescGZIP() []byte {
+	file_proto_save_data_proto_rawDescOnce.Do(func() {
+		file_proto_save_data_proto_rawDescData = protoimpl.X.CompressGZIP(file_proto_save_data_proto_rawDescData)
 	})
-	return file_proto_preparams_proto_rawDescData
+	return file_proto_save_data_proto_rawDescData
 }
 
-var file_proto_preparams_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_proto_preparams_proto_goTypes = []interface{}{
+var file_proto_save_data_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_proto_save_data_proto_goTypes = []interface{}{
 	(*LocalPreParams)(nil),     // 0: LocalPreParams
 	(*LocalSecrets)(nil),       // 1: LocalSecrets
 	(*ECPoint)(nil),            // 2: ECPoint
@@ -557,7 +557,7 @@ var file_proto_preparams_proto_goTypes = []interface{}{
 	(*PrivateKey)(nil),         // 4: PrivateKey
 	(*LocalPartySaveData)(nil), // 5: LocalPartySaveData
 }
-var file_proto_preparams_proto_depIdxs = []int32{
+var file_proto_save_data_proto_depIdxs = []int32{
 	4, // 0: LocalPreParams.paillierSK:type_name -> PrivateKey
 	3, // 1: PrivateKey.publicKey:type_name -> PublicKey
 	0, // 2: LocalPartySaveData.localPreParams:type_name -> LocalPreParams
@@ -572,13 +572,13 @@ var file_proto_preparams_proto_depIdxs = []int32{
 	0, // [0:7] is the sub-list for field type_name
 }
 
-func init() { file_proto_preparams_proto_init() }
-func file_proto_preparams_proto_init() {
-	if File_proto_preparams_proto != nil {
+func init() { file_proto_save_data_proto_init() }
+func file_proto_save_data_proto_init() {
+	if File_proto_save_data_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_proto_preparams_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_save_data_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*LocalPreParams); i {
 			case 0:
 				return &v.state
@@ -590,7 +590,7 @@ func file_proto_preparams_proto_init() {
 				return nil
 			}
 		}
-		file_proto_preparams_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_save_data_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*LocalSecrets); i {
 			case 0:
 				return &v.state
@@ -602,7 +602,7 @@ func file_proto_preparams_proto_init() {
 				return nil
 			}
 		}
-		file_proto_preparams_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_save_data_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ECPoint); i {
 			case 0:
 				return &v.state
@@ -614,7 +614,7 @@ func file_proto_preparams_proto_init() {
 				return nil
 			}
 		}
-		file_proto_preparams_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_save_data_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PublicKey); i {
 			case 0:
 				return &v.state
@@ -626,7 +626,7 @@ func file_proto_preparams_proto_init() {
 				return nil
 			}
 		}
-		file_proto_preparams_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_save_data_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PrivateKey); i {
 			case 0:
 				return &v.state
@@ -638,7 +638,7 @@ func file_proto_preparams_proto_init() {
 				return nil
 			}
 		}
-		file_proto_preparams_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_proto_save_data_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*LocalPartySaveData); i {
 			case 0:
 				return &v.state
@@ -655,18 +655,18 @@ func file_proto_preparams_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_proto_preparams_proto_rawDesc,
+			RawDescriptor: file_proto_save_data_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_proto_preparams_proto_goTypes,
-		DependencyIndexes: file_proto_preparams_proto_depIdxs,
-		MessageInfos:      file_proto_preparams_proto_msgTypes,
+		GoTypes:           file_proto_save_data_proto_goTypes,
+		DependencyIndexes: file_proto_save_data_proto_depIdxs,
+		MessageInfos:      file_proto_save_data_proto_msgTypes,
 	}.Build()
-	File_proto_preparams_proto = out.File
-	file_proto_preparams_proto_rawDesc = nil
-	file_proto_preparams_proto_goTypes = nil
-	file_proto_preparams_proto_depIdxs = nil
+	File_proto_save_data_proto = out.File
+	file_proto_save_data_proto_rawDesc = nil
+	file_proto_save_data_proto_goTypes = nil
+	file_proto_save_data_proto_depIdxs = nil
 }
