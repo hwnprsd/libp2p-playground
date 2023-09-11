@@ -24,9 +24,9 @@ The goal of this repo is to create as complicated a network possible and test va
 ## Interface
 
 - [x] Mock smart-contract which has the state of peers + wallets under management
-- [ ] Plan for Node / Network restarts
+- [x] Plan for Node / Network restarts (SaveData caching)
 - [ ] DKG should be done as and when the network is inititalized. DKG should be incrementally done as and when new wallets come under management
 - [ ] Signing Verification should take place, with the SC data as the source of truth (till Phase03)
 - [ ] Specify the ethereum transaction format for the Transaction Wrapper
 - [ ] Unwrap, Verify and Sign
-- [ ] Signatures and metadata should be stored by individual nodes on their respective DBs
+- [x] Signatures and metadata should be stored by individual nodes on their respective DBs (Squad level DBs)
