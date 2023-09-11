@@ -17,6 +17,6 @@ The goal of this repo is to create as complicated a network possible and test va
   - Querying Squad State
   - Querying Public Key Management state as well
 - [x] Make all nodes a part of the same squad (For Testing)
-- [ ] Implement external request handlers, which can trigger events
-- [ ] Port this over to the TSS network or port that to this network
+- [x] Implement external request handlers, which can trigger events
+- [x] Port this over to the TSS network or port that to this network (DKG + Signing)
 - [ ] Handle storing & retreving of signed messages
