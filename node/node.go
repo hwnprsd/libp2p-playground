@@ -5,13 +5,14 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"log"
+	"sync"
+	"time"
+
 	"github.com/solace-labs/skeyn/proto"
 	smartcontract "github.com/solace-labs/skeyn/smart_contract"
 	"github.com/solace-labs/skeyn/squad"
 	"github.com/solace-labs/skeyn/utils"
-	"log"
-	"sync"
-	"time"
 
 	"github.com/ipfs/go-cid"
 	"github.com/libp2p/go-libp2p"

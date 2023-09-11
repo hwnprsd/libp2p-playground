@@ -48,11 +48,13 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	errChan = make(chan error)
 	outChan := make(chan tss.Message)
 	endChan := make(chan keygen.LocalPartySaveData)
+
 	preParams, err := keygen.GeneratePreParams(1 * time.Minute)
 	if err != nil {
 		log.Println("Error generating pre-params")
 		panic(err)
 	}
+
 	party := keygen.NewLocalParty(params, outChan, endChan, *preParams)
 	s.keyGenParty = &party
 	s.preParams = preParams
@@ -75,8 +77,15 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 }
 
 func (s *Squad) handleKeygenEnd(data keygen.LocalPartySaveData) {
-	s.keyGenData = &data
+	saveData := NewStoredSaveData(&data)
+	saveDataB := saveData.Bytes()
 	log.Println("Keygen Complete")
+	err := s.db.Set([]byte(s.LP_SAVE_DATA_KEY()), saveDataB)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(data.ECDSAPub.Curve())
+	log.Println("Save Data Stored")
 
 	// x, y := data.ECDSAPub.X(), data.ECDSAPub.Y()
 	// pk := ecdsa.PublicKey{

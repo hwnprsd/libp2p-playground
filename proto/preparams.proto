@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+message LocalPreParams {
+    PrivateKey paillierSK = 1;  // Serialized Paillier Private Key
+    bytes ntildei = 2;
+    bytes h1i = 3;
+    bytes h2i = 4;
+    bytes alpha = 5;
+    bytes beta = 6;
+    bytes p = 7;
+    bytes q = 8;
+}
+
+message LocalSecrets {
+    bytes xi = 1;
+    bytes shareID = 2;
+}
+
+message ECPoint {
+    bytes curve = 1;
+    bytes x = 2;
+    bytes y = 3;
+}
+
+message PublicKey {
+    bytes n = 1;
+}
+
+message PrivateKey {
+    PublicKey publicKey = 1;
+    bytes lambdaN = 2;
+    bytes phiN = 3;
+    bytes p = 4;
+    bytes q = 5;
+}
+
+message LocalPartySaveData {
+    LocalPreParams localPreParams = 1;
+    LocalSecrets localSecrets = 2;
+    repeated bytes ks = 3;
+    repeated bytes ntildej = 4;
+    repeated bytes h1j = 5;
+    repeated bytes h2j = 6;
+    repeated ECPoint bigXj = 7;
+    repeated PublicKey paillierPKs = 8;
+    ECPoint ecdsaPub = 9;
+}

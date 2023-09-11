@@ -9,11 +9,13 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/peerstore"
 	"github.com/solace-labs/skeyn/common"
+	"github.com/solace-labs/skeyn/db"
 	"github.com/solace-labs/skeyn/smart_contract"
 )
 
 type Squad struct {
 	isInitialized bool
+	ID            string
 	peers         SquadPeers
 	peerId        peer.ID
 	sc            smartcontract.NetworkState
@@ -24,9 +26,11 @@ type Squad struct {
 
 	preParams   *keygen.LocalPreParams
 	keyGenParty *tss.Party
-	keyGenData  *keygen.LocalPartySaveData
+	keyGenData  StoredSaveData
 
 	sigParty *tss.Party
+
+	db db.Database
 }
 
 func (cps *Squad) VerifyPeer(peerID peer.ID) bool {
@@ -62,10 +66,17 @@ func (s *Squad) Init(ctx context.Context,
 
 	log.Println(squadId, "- Squad Initialized")
 
+	database, err := db.NewLevelDB(squadId + s.peerId.String())
+	if err != nil {
+		panic("error initing DB")
+	}
+
+	s.db = database
 	s.isInitialized = true
 	s.ctx = ctx
 	s.writeCh = writeCh
 	s.peerStore = peerStore
+	s.ID = squadId
 }
 
 func (s Squad) RefreshACL(ctx context.Context) {

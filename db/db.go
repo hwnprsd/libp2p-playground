@@ -7,43 +7,46 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/errors"
 )
 
-type DB struct {
+type LevelDB struct {
 	db *leveldb.DB
 }
 
-func NewDB(filename string) (*DB, error) {
+func NewLevelDB(filename string) (*LevelDB, error) {
 	db, err := leveldb.OpenFile(filename, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &DB{db}, nil
+	return &LevelDB{db}, nil
 }
 
-func (db *DB) Get(key []byte) []byte {
+func (db *LevelDB) Get(key []byte) ([]byte, error) {
 	key = checkNilBytes(key)
 	res, err := db.db.Get(key, nil)
 	if err != nil {
 		if err == errors.ErrNotFound {
-			return nil
+			return nil, nil
 		}
-		panic(err)
+		return nil, err
 	}
-	return res
+	return res, nil
 }
 
-func (db *DB) Set(key []byte, value []byte) {
+func (db *LevelDB) Set(key []byte, value []byte) error {
 	key = checkNilBytes(key)
 	value = checkNilBytes(value)
 	err := db.db.Put(key, value, nil)
 	if err != nil {
-		log.Println("ERROR SETTING DB KEY:", err)
+		return err
 	}
+	return nil
 }
 
-func (db *DB) Delete(key []byte) {
+func (db *LevelDB) Delete(key []byte) error {
 	key = checkNilBytes(key)
 	err := db.db.Delete(key, nil)
 	if err != nil {
 		log.Println("ERROR DELETING DB KEY:", err)
+		return err
 	}
+	return nil
 }

@@ -33,9 +33,20 @@ func (s *Squad) InitSigning(ctx context.Context, message []byte) chan error {
 
 func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldContinueInit bool, errChan chan error) {
 	// KeyGen is not completed
-	if s.keyGenData == nil {
-		log.Println("KeyGen Data is NIL")
-		return false, nil
+	if s.keyGenData.LocalPartySaveData == nil {
+		// Check if it exists in the DB
+		saveDataB, err := s.db.Get([]byte(s.LP_SAVE_DATA_KEY()))
+		if err != nil {
+			log.Println("Error reading SaveData from DB")
+			panic(err)
+		}
+		if saveDataB == nil {
+			log.Println("KeyGen SaveData does not exist")
+			return false, nil
+		}
+		saveData := StoredSaveDataFromBytes(saveDataB)
+		s.keyGenData = saveData
+		log.Println("Stored Savedata fetched")
 	}
 
 	// In an ongoing session. No need to init
@@ -66,7 +77,7 @@ func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldCo
 		}
 	}()
 
-	party := signing.NewLocalParty(msg, params, *s.keyGenData, outChan, endChan)
+	party := signing.NewLocalParty(msg, params, *s.keyGenData.LocalPartySaveData, outChan, endChan)
 	s.sigParty = &party
 	return true, errChan
 }
