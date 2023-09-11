@@ -20,3 +20,12 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Implement external request handlers, which can trigger events
 - [x] Port this over to the TSS network or port that to this network (DKG + Signing)
 - [ ] Handle storing & retreving of signed messages
+
+## Interface
+
+- [ ] Mock smart-contract which has the state of peers + wallets under management
+- [ ] DKG should be done as and when the network is inititalized. DKG should be incrementally done as and when new wallets come under management
+- [ ] Signing Verification should take place, with the SC data as the source of truth (till Phase03)
+- [ ] Specify the ethereum transaction format for the Transaction Wrapper
+- [ ] Unwrap, Verify and Sign
+- [ ] Signatures and metadata should be stored by individual nodes on their respective DBs

@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TransactionService_SendTransaction_FullMethodName = "/TransactionService/SendTransaction"
+	TransactionService_HandleTransaction_FullMethodName = "/TransactionService/HandleTransaction"
 )
 
 // TransactionServiceClient is the client API for TransactionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransactionServiceClient interface {
-	SendTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error)
+	HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error)
 }
 
 type transactionServiceClient struct {
@@ -37,9 +37,9 @@ func NewTransactionServiceClient(cc grpc.ClientConnInterface) TransactionService
 	return &transactionServiceClient{cc}
 }
 
-func (c *transactionServiceClient) SendTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error) {
+func (c *transactionServiceClient) HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error) {
 	out := new(TransactionResponse)
-	err := c.cc.Invoke(ctx, TransactionService_SendTransaction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TransactionService_HandleTransaction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *transactionServiceClient) SendTransaction(ctx context.Context, in *Tran
 // All implementations must embed UnimplementedTransactionServiceServer
 // for forward compatibility
 type TransactionServiceServer interface {
-	SendTransaction(context.Context, *Transaction) (*TransactionResponse, error)
+	HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
 
@@ -58,8 +58,8 @@ type TransactionServiceServer interface {
 type UnimplementedTransactionServiceServer struct {
 }
 
-func (UnimplementedTransactionServiceServer) SendTransaction(context.Context, *Transaction) (*TransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendTransaction not implemented")
+func (UnimplementedTransactionServiceServer) HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandleTransaction not implemented")
 }
 func (UnimplementedTransactionServiceServer) mustEmbedUnimplementedTransactionServiceServer() {}
 
@@ -74,20 +74,20 @@ func RegisterTransactionServiceServer(s grpc.ServiceRegistrar, srv TransactionSe
 	s.RegisterService(&TransactionService_ServiceDesc, srv)
 }
 
-func _TransactionService_SendTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TransactionService_HandleTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Transaction)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransactionServiceServer).SendTransaction(ctx, in)
+		return srv.(TransactionServiceServer).HandleTransaction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TransactionService_SendTransaction_FullMethodName,
+		FullMethod: TransactionService_HandleTransaction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionServiceServer).SendTransaction(ctx, req.(*Transaction))
+		return srv.(TransactionServiceServer).HandleTransaction(ctx, req.(*Transaction))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +100,8 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TransactionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SendTransaction",
-			Handler:    _TransactionService_SendTransaction_Handler,
+			MethodName: "HandleTransaction",
+			Handler:    _TransactionService_HandleTransaction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

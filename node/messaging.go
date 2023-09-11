@@ -17,7 +17,7 @@ import (
 // 3. Check if the type of message is valid (Start DKG vs Sign)
 // 4. Signal the squad to do what's required
 // Called by external agents
-func (n *Node) SendTransaction(ctx context.Context, req *proto.Transaction) (*proto.TransactionResponse, error) {
+func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*proto.TransactionResponse, error) {
 	isInvalidRequest := req.Type == "" ||
 		req.Payload == nil ||
 		req.Payload.WalletAddress == nil ||
@@ -42,7 +42,6 @@ func (n *Node) SendTransaction(ctx context.Context, req *proto.Transaction) (*pr
 	// Check if address and wallet address are a part of the squad
 
 	// TODO: Broadcast random shit to peers
-	log.Println("TYPE", req.Type)
 	if req.Type == "1" {
 		n.squad.InitKeygen(ctx)
 	} else {

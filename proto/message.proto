@@ -5,7 +5,7 @@ option go_package = "./proto";
 
 
 service TransactionService {
-	rpc SendTransaction (Transaction) returns (TransactionResponse){
+	rpc HandleTransaction(Transaction) returns (TransactionResponse){
 	        option (google.api.http) = {
 		    post: "/v1/transaction"
 		    body: "*"
