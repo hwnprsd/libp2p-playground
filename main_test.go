@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -35,8 +36,7 @@ func Test_CreateWalletData(t *testing.T) {
 	// Generate Ethereum-compatible wallet keys
 	walletPriv, _ := ethcrypto.GenerateKey()
 	walletPub := walletPriv.PublicKey
-	walletPubBytes := ethcrypto.FromECDSAPub(&walletPub)
-	walletPubKeyb64 := base64.StdEncoding.EncodeToString(walletPubBytes)
+	walletAddr := ethcrypto.PubkeyToAddress(walletPub)
 
 	// Generate Ethereum-compatible user keys
 	userPriv, _ := ethcrypto.GenerateKey()
@@ -47,20 +47,21 @@ func Test_CreateWalletData(t *testing.T) {
 	signData := []byte("SIGN ME PLEASE")
 	signDataHash := ethcrypto.Keccak256(signData)
 	sig, _ := ethcrypto.Sign(signDataHash, userPriv)
-	sigBase64 := base64.StdEncoding.EncodeToString(sig)
-	data := base64.StdEncoding.EncodeToString(signData)
 
 	log.Println("UserAddr", ethcrypto.PubkeyToAddress(userPub).Hex())
 
 	r := request{}
 	r.T = "1"
-	r.Payload.Data = data
-	r.Payload.WalletAddress = walletPubKeyb64
-	r.Payload.Signature = sigBase64
+	r.Payload.Data = hex.EncodeToString(signData)
+	r.Payload.WalletAddress = walletAddr.Hex()
+	r.Payload.Signature = hex.EncodeToString(sig)
 
 	j, _ := json.Marshal(r)
 	fmt.Println("\n\ncurl -X POST 'http://localhost:5050/v1/transaction' \\")
 	fmt.Println("-H 'Content-Type: application/json' \\")
 	fmt.Println("-H 'Content-Type: application/json' \\")
 	fmt.Printf("-d '%s'\n\n", string(j))
+	fmt.Println("")
+
+	fmt.Println("UserPub", ethcrypto.PubkeyToAddress(userPub).Hex())
 }

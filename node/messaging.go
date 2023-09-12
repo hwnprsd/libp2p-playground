@@ -2,13 +2,15 @@ package node
 
 import (
 	"context"
+	"log"
+
 	"github.com/solace-labs/skeyn/common"
 	proto "github.com/solace-labs/skeyn/proto"
 	"github.com/solace-labs/skeyn/utils"
-	"log"
 
 	"github.com/libp2p/go-libp2p/core/network"
 
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -18,26 +20,28 @@ import (
 // 4. Signal the squad to do what's required
 // Called by external agents
 func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*proto.TransactionResponse, error) {
+	walletAddress := ethcommon.HexToAddress(req.Payload.WalletAddress)
+	signature := ethcommon.Hex2Bytes(req.Payload.Signature)
+	data := ethcommon.Hex2Bytes(req.Payload.Data)
+
 	isInvalidRequest := req.Type == "" ||
 		req.Payload == nil ||
-		req.Payload.WalletAddress == nil ||
-		req.Payload.Signature == nil ||
-		req.Payload.Data == nil
+		walletAddress.Bytes() == nil ||
+		signature == nil ||
+		data == nil
 
 	if isInvalidRequest {
 		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request"}, nil
 	}
 
-	sig := req.Payload.Signature
-
-	signDataHash := ethcrypto.Keccak256Hash(req.Payload.Data)
-	pubKey, err := ethcrypto.SigToPub(signDataHash.Bytes(), sig)
+	signDataHash := ethcrypto.Keccak256Hash(data)
+	pubKey, err := ethcrypto.SigToPub(signDataHash.Bytes(), signature)
 	if err != nil {
-		log.Fatal(err)
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
 
 	address := ethcrypto.PubkeyToAddress(*pubKey)
-	_ = address
+	log.Println("Address - ", address.Hex())
 
 	// Check if address and wallet address are a part of the squad
 
@@ -45,6 +49,7 @@ func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*
 	if req.Type == "1" {
 		n.squad.InitKeygen(ctx)
 	} else {
+		// Verify Incoming Message
 		n.squad.InitSigning(ctx, []byte("YEET"))
 	}
 

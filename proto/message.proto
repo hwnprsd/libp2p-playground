@@ -19,10 +19,11 @@ message Transaction {
 	Payload payload = 2;
 }
 
+// Easier to accept this as hex strings instead of []byte to only convert them again
 message Payload {
-	bytes walletAddress = 1;
-	bytes data = 2;
-	bytes signature = 3;
+	string walletAddress = 1;
+	string data = 2;
+	string signature = 3;
 }
 
 message TransactionResponse {
