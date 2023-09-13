@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TransactionService_HandleTransaction_FullMethodName = "/TransactionService/HandleTransaction"
+	TransactionService_HandleTransaction_FullMethodName  = "/TransactionService/HandleTransaction"
+	TransactionService_HandleSigRetrieval_FullMethodName = "/TransactionService/HandleSigRetrieval"
 )
 
 // TransactionServiceClient is the client API for TransactionService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransactionServiceClient interface {
 	HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error)
+	HandleSigRetrieval(ctx context.Context, in *SignatureRetrieval, opts ...grpc.CallOption) (*TransactionResponse, error)
 }
 
 type transactionServiceClient struct {
@@ -46,11 +48,21 @@ func (c *transactionServiceClient) HandleTransaction(ctx context.Context, in *Tr
 	return out, nil
 }
 
+func (c *transactionServiceClient) HandleSigRetrieval(ctx context.Context, in *SignatureRetrieval, opts ...grpc.CallOption) (*TransactionResponse, error) {
+	out := new(TransactionResponse)
+	err := c.cc.Invoke(ctx, TransactionService_HandleSigRetrieval_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransactionServiceServer is the server API for TransactionService service.
 // All implementations must embed UnimplementedTransactionServiceServer
 // for forward compatibility
 type TransactionServiceServer interface {
 	HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error)
+	HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedTransactionServiceServer struct {
 
 func (UnimplementedTransactionServiceServer) HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleTransaction not implemented")
+}
+func (UnimplementedTransactionServiceServer) HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandleSigRetrieval not implemented")
 }
 func (UnimplementedTransactionServiceServer) mustEmbedUnimplementedTransactionServiceServer() {}
 
@@ -92,6 +107,24 @@ func _TransactionService_HandleTransaction_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransactionService_HandleSigRetrieval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignatureRetrieval)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).HandleSigRetrieval(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransactionService_HandleSigRetrieval_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).HandleSigRetrieval(ctx, req.(*SignatureRetrieval))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransactionService_ServiceDesc is the grpc.ServiceDesc for TransactionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HandleTransaction",
 			Handler:    _TransactionService_HandleTransaction_Handler,
+		},
+		{
+			MethodName: "HandleSigRetrieval",
+			Handler:    _TransactionService_HandleSigRetrieval_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

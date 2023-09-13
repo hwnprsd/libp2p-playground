@@ -62,6 +62,4 @@ func Test_CreateWalletData(t *testing.T) {
 	fmt.Println("-H 'Content-Type: application/json' \\")
 	fmt.Printf("-d '%s'\n\n", string(j))
 	fmt.Println("")
-
-	fmt.Println("UserPub", ethcrypto.PubkeyToAddress(userPub).Hex())
 }

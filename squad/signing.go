@@ -75,7 +75,7 @@ func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldCo
 			case outData := <-outChan:
 				s.handleSigningMessage(outData, message)
 			case endData := <-endChan:
-				s.handleSessionEnd(&endData)
+				s.handleSessionEnd(&endData, []byte(hex.EncodeToString(message)))
 			}
 		}
 	}()
@@ -85,9 +85,19 @@ func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldCo
 	return true, errChan
 }
 
-func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData) {
-	log.Println(hex.EncodeToString(data.Signature))
+func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, key []byte) {
+	err := s.db.Set(key, data.Signature)
+	if err != nil {
+		log.Println("Error setting signature")
+	} else {
+		log.Println("Sig Saved")
+		log.Println(hex.EncodeToString(data.Signature))
+	}
 	s.sigParty = nil
+}
+
+func (s *Squad) GetSig(key []byte) ([]byte, error) {
+	return s.db.Get(key)
 }
 
 func (s *Squad) UpdateSigningParty(

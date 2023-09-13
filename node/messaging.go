@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"encoding/hex"
 	"log"
 
 	"github.com/solace-labs/skeyn/common"
@@ -50,11 +51,22 @@ func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*
 		n.squad.InitKeygen(ctx)
 	} else {
 		// Verify Incoming Message
-		n.squad.InitSigning(ctx, []byte("YEET"))
+		n.squad.InitSigning(ctx, data)
 	}
 
+	key := hex.EncodeToString(data)
+
 	// Your logic here
-	return &proto.TransactionResponse{Success: true, Msg: "ok"}, nil
+	return &proto.TransactionResponse{Success: true, Msg: key}, nil
+}
+
+func (n *Node) HandleSigRetrieval(ctx context.Context, req *proto.SignatureRetrieval) (*proto.TransactionResponse, error) {
+	sig, err := n.squad.GetSig([]byte(req.Key))
+	if err != nil {
+
+		return &proto.TransactionResponse{Success: false, Msg: "Error fetching squad sig"}, err
+	}
+	return &proto.TransactionResponse{Success: true, Msg: hex.EncodeToString(sig)}, nil
 }
 
 // Message sink

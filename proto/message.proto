@@ -11,6 +11,13 @@ service TransactionService {
 		    body: "*"
 		};
 	}
+
+	rpc HandleSigRetrieval(SignatureRetrieval) returns (TransactionResponse){
+		option (google.api.http) = {
+			post: "/v1/retrive"
+			body: "*"
+		};
+	}
 }
 
 // This will be for external Http / GRPC Calls
@@ -29,4 +36,8 @@ message Payload {
 message TransactionResponse {
 	bool success = 1;
 	string msg = 2;
+}
+
+message SignatureRetrieval {
+	string key = 1;
 }
