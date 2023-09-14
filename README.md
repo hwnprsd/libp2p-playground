@@ -19,7 +19,7 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Make all nodes a part of the same squad (For Testing)
 - [x] Implement external request handlers, which can trigger events
 - [x] Port this over to the TSS network or port that to this network (DKG + Signing)
-- [ ] Handle storing & retreving of signed messages
+- [x] Handle storing & retreving of signed messages (Partial)
 
 ## Interface
 
@@ -30,3 +30,9 @@ The goal of this repo is to create as complicated a network possible and test va
 - [ ] Specify the ethereum transaction format for the Transaction Wrapper
 - [ ] Unwrap, Verify and Sign
 - [x] Signatures and metadata should be stored by individual nodes on their respective DBs (Squad level DBs)
+
+## Transaction Wrapper
+
+- [ ] Transaction Parser module - Interface
+- [ ] Rules Parser Format
+- [ ] Rules / Transaction Enforcer
