@@ -31,7 +31,13 @@ The goal of this repo is to create as complicated a network possible and test va
 - [ ] Unwrap, Verify and Sign
 - [x] Signatures and metadata should be stored by individual nodes on their respective DBs (Squad level DBs)
 
-## Transaction Wrapper
+## Wrappers
+
+- [ ] Define how the Rules look like
+- [ ] Interface for Declaring Rules
+
+- [ ] Define how a tx looks like
+- [ ] Interface for checking if a Tx fits the rules
 
 - [ ] Transaction Parser module - Interface
 - [ ] Rules Parser Format
