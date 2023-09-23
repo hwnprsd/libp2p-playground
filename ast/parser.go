@@ -4,21 +4,21 @@ import (
 	"github.com/alecthomas/participle/v2"
 )
 
-type Value struct {
-	Num  *int  `  "[" @Int "]"`
-	Expr *Expr `| "(" @@ ")"`
+type value struct {
+	Num  *int     `  "[" @Int "]"`
+	Expr *astExpr `| "(" @@ ")"`
 }
 
-type Expr struct {
-	Or []*AndExpr `@@ ("OR" @@)*`
+type astExpr struct {
+	Or []*andExpr `@@ ("OR" @@)*`
 }
 
-type AndExpr struct {
-	And []*Value `@@ ("AND" @@)*`
+type andExpr struct {
+	And []*value `@@ ("AND" @@)*`
 }
 
 func ValidateExpression(input string, valueMap map[int]bool) (bool, error) {
-	parser, err := participle.Build[Expr]()
+	parser, err := participle.Build[astExpr]()
 
 	if err != nil {
 		panic(err)
@@ -36,7 +36,7 @@ func ValidateExpression(input string, valueMap map[int]bool) (bool, error) {
 	// fmt.Printf("\n\n-- %#v --\n\n", )
 }
 
-func validate(expr *Expr, validationMap map[int]bool) (bool, error) {
+func validate(expr *astExpr, validationMap map[int]bool) (bool, error) {
 	var finalAns *bool
 	for _, orValue := range expr.Or {
 		var val1 *bool
