@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"fmt"
 	"github.com/alecthomas/participle/v2"
 )
 
@@ -42,13 +41,11 @@ func validate(expr *Expr, validationMap map[int]bool) bool {
 	for _, orValue := range expr.Or {
 		var answer *bool
 		if orValue.And == nil {
-			fmt.Println("AND NIL")
 			continue
 		}
 		for _, andValue := range orValue.And {
 			// This means that AND is just carrying a value
 			var ans bool
-			fmt.Println(*andValue.Num)
 			if andValue.Num != nil {
 				val := validationMap[*andValue.Num]
 				if answer == nil {
