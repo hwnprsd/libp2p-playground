@@ -3,6 +3,7 @@ module github.com/solace-labs/skeyn
 go 1.19
 
 require (
+	github.com/alecthomas/participle/v2 v2.1.0
 	github.com/bnb-chain/tss-lib/v2 v2.0.0
 	github.com/ethereum/go-ethereum v1.12.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.17.1

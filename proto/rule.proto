@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message Rule {
+	string walletAddress = 1;
+}
+
+// Consider for base token transfers
+message RuleMeta {
+	string toAddress = 1; 
+} 
