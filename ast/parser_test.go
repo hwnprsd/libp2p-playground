@@ -49,39 +49,39 @@ var (
 )
 
 func Test_simpleOr(t *testing.T) {
-	v1 := ValidateExpression("[1] OR [2]", valueMap1)
-	v2 := ValidateExpression("[1] OR [2]", valueMap2)
-	v3 := ValidateExpression("[1] OR [2]", valueMap3)
+	v1, _ := ValidateExpression("[1] OR [2]", valueMap1)
+	v2, _ := ValidateExpression("[1] OR [2]", valueMap2)
+	v3, _ := ValidateExpression("[1] OR [2]", valueMap3)
 	assert.True(t, v1)
 	assert.True(t, v2)
 	assert.False(t, v3)
 }
 
 func Test_simpleAnd(t *testing.T) {
-	v1 := ValidateExpression("[1] AND [2]", valueMap1)
-	v2 := ValidateExpression("[1] AND [2]", valueMap2)
-	v3 := ValidateExpression("[1] AND [2]", valueMap3)
+	v1, _ := ValidateExpression("[1] AND [2]", valueMap1)
+	v2, _ := ValidateExpression("[1] AND [2]", valueMap2)
+	v3, _ := ValidateExpression("[1] AND [2]", valueMap3)
 	assert.True(t, v1)
 	assert.False(t, v2)
 	assert.False(t, v3)
 }
 
 func Test_nestedLogic(t *testing.T) {
-	v1 := ValidateExpression("([1] AND [2]) OR [3]", valueMap4)
-	v2 := ValidateExpression("([1] OR [2]) AND [3]", valueMap4)
+	v1, _ := ValidateExpression("([1] AND [2]) OR [3]", valueMap4)
+	v2, _ := ValidateExpression("([1] OR [2]) AND [3]", valueMap4)
 	assert.True(t, v1)
 	assert.False(t, v2)
 }
 
 func Test_deepNestedLogic(t *testing.T) {
 	// Test with valueMap5
-	v1 := ValidateExpression("((([1] AND [4]) OR ([2] AND [5])) AND [3]) OR [4]", valueMap5)
+	v1, _ := ValidateExpression("((([1] AND [4]) OR ([2] AND [5])) AND [3]) OR [4]", valueMap5)
 	// (((false OR false) AND (true OR false)) OR false) AND true
-	v2 := ValidateExpression("((([1] OR [4]) AND ([2] OR [5])) OR [3]) AND [5]", valueMap6)
+	v2, _ := ValidateExpression("((([1] OR [4]) AND ([2] OR [5])) OR [3]) AND [5]", valueMap6)
 	// Test with valueMap1
-	v3 := ValidateExpression("((([1] AND [2]) OR [3]) AND [1]) OR [2]", valueMap1)
+	v3, _ := ValidateExpression("((([1] AND [2]) OR [3]) AND [1]) OR [2]", valueMap1)
 	// Test with valueMap4
-	v4 := ValidateExpression("((([1] AND [2]) OR [3]) AND [1]) OR [3]", valueMap4)
+	v4, _ := ValidateExpression("((([1] AND [2]) OR [3]) AND [1]) OR [3]", valueMap4)
 
 	assert.True(t, v1)
 	assert.False(t, v2)

@@ -17,7 +17,7 @@ type AndExpr struct {
 	And []*Value `@@ ("AND" @@)*`
 }
 
-func ValidateExpression(input string, valueMap map[int]bool) bool {
+func ValidateExpression(input string, valueMap map[int]bool) (bool, error) {
 	parser, err := participle.Build[Expr]()
 
 	if err != nil {
@@ -36,44 +36,40 @@ func ValidateExpression(input string, valueMap map[int]bool) bool {
 	// fmt.Printf("\n\n-- %#v --\n\n", )
 }
 
-func validate(expr *Expr, validationMap map[int]bool) bool {
-	var isValid *bool
+func validate(expr *Expr, validationMap map[int]bool) (bool, error) {
+	var finalAns *bool
 	for _, orValue := range expr.Or {
-		var answer *bool
+		var val1 *bool
 		if orValue.And == nil {
 			continue
 		}
 		for _, andValue := range orValue.And {
 			// This means that AND is just carrying a value
-			var ans bool
+			var collectedValue bool
 			if andValue.Num != nil {
 				val := validationMap[*andValue.Num]
-				if answer == nil {
-					ans = val
-				} else {
-					ans = *answer && val
-				}
+				collectedValue = val
 			} else {
-				val := validate(andValue.Expr, validationMap)
-				if answer == nil {
-					answer = &val
-				} else {
-					ans = *answer && val
+				val, err := validate(andValue.Expr, validationMap)
+				if err != nil {
+					return false, err
 				}
-
+				collectedValue = val
 			}
-			if answer == nil {
-				answer = &ans
+
+			if val1 == nil {
+				val1 = &collectedValue
 			} else {
-				res := *answer && ans
-				answer = &res
+				res := *val1 && collectedValue
+				val1 = &res
 			}
 		}
-		if isValid == nil {
-			isValid = answer
+
+		if finalAns == nil {
+			finalAns = val1
 		} else {
-			res := *isValid || *answer
-			isValid = &res
+			res := *finalAns || *val1
+			finalAns = &res
 		}
 
 		// val, exists := validationMap[*orValue.And]
@@ -86,5 +82,5 @@ func validate(expr *Expr, validationMap map[int]bool) bool {
 		// 	*isValid = *isValid || val
 		// }
 	}
-	return *isValid
+	return *finalAns, nil
 }
