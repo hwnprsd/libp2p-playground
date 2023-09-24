@@ -38,10 +38,13 @@ var (
 	networkCid  = cid.NewCidV1(cid.Raw, mHash)
 )
 
+type SquadM map[string]*squad.Squad
+
 type Node struct {
-	host  *host.Host
-	kdht  *dht.IpfsDHT
-	squad *squad.Squad
+	host *host.Host
+	kdht *dht.IpfsDHT
+
+	squad SquadM
 
 	smartContract smartcontract.NetworkState
 
@@ -88,6 +91,8 @@ func (n *Node) Start(config utils.Config) {
 	n.SetupNotifications()
 
 	n.SetupSquads(ctx)
+
+	n.smartContract = &smartcontract.TestContract{}
 
 	incomingChan := n.setupMessageRecieverHandler(ctx)
 	// Instead of having a channel, you could just call the function on the target squad

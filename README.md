@@ -9,7 +9,8 @@ The goal of this repo is to create as complicated a network possible and test va
 
 ## Squad
 
-1. Periodically keep checking if the squad of ID has the right peers - If updated, trigger resharing
+- [ ] Periodically keep checking if the squad of ID has the right peers - If updated, trigger resharing
+- [ ] Store multiple wallet addresses under one squad
 
 ## TODO
 
@@ -47,4 +48,4 @@ The goal of this repo is to create as complicated a network possible and test va
 
 - [ ] Sender Address based Rule
   - [ ] Sender => Max <Token, Value>
-  - [ ]
+  - [ ] Store spend data

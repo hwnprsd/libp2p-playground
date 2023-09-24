@@ -73,7 +73,10 @@ func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*
 	address := ethcrypto.PubkeyToAddress(*pubKey)
 	log.Println("Address - ", address.Hex())
 
-	// Check if address and wallet address are a part of the squad
+	// Check if address and wallet address are a part of the squad using the network state
+	// If yes, check if it exists
+	//	Create if doesn't exist
+	// If no reject
 
 	// TODO: Broadcast random shit to peers
 	if req.Type == "1" {

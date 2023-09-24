@@ -31,35 +31,28 @@ func (s *Squad) VerifyMessage(msg common.IncomingMessage) error {
 }
 
 // Given a recieve-only channel, this funcion will recieve messages and handle them gracefully
-func (s *Squad) HandleIncomingMessages(ctx context.Context, ch <-chan common.IncomingMessage) {
+func (s *Squad) HandleIncomingMessages(ctx context.Context, msg common.IncomingMessage) {
 	log.Println("Handling incoming messages")
-	for {
-		select {
-		case <-ctx.Done():
-			return
 
-		case msg := <-ch:
-			err := s.VerifyMessage(msg)
-			if err != nil {
-				log.Println("Message from invalid sender!")
-				continue
-			}
-			// Parse the data into a DKG Understandable message
-			updateMsg := &proto.UpdateMessage{}
-			if err := protoc.Unmarshal(msg.GetData(), updateMsg); err != nil {
-				log.Println("Error unmarshalling Data from wire", err)
-				continue
-			}
-			switch msg.GetProtocol() {
-			case common.DKG_PROTOCOL:
-				_, err = s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
-			case common.SIGNING_PROTOCOL:
-				_, err = s.UpdateSigningParty(ctx, updateMsg, msg.GetPeerID())
-			}
-			if err != nil {
-				log.Println("[ERR] Updating Keygen/Signing party", err)
-			}
-		}
+	err := s.VerifyMessage(msg)
+	if err != nil {
+		log.Println("Message from invalid sender!")
+		return
+	}
+	// Parse the data into a DKG Understandable message
+	updateMsg := &proto.UpdateMessage{}
+	if err := protoc.Unmarshal(msg.GetData(), updateMsg); err != nil {
+		log.Println("Error unmarshalling Data from wire", err)
+		return
+	}
+	switch msg.GetProtocol() {
+	case common.DKG_PROTOCOL:
+		_, err = s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
+	case common.SIGNING_PROTOCOL:
+		_, err = s.UpdateSigningParty(ctx, updateMsg, msg.GetPeerID())
+	}
+	if err != nil {
+		log.Println("[ERR] Updating Keygen/Signing party", err)
 	}
 }
 

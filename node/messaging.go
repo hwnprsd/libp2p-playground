@@ -58,7 +58,7 @@ func (n *Node) setupOutgoingMessageHandler(ctx context.Context) chan common.Outg
 			case <-ctx.Done():
 				return
 			case msg := <-ch:
-				stream, err := n.h().NewStream(ctx, msg.GetPeerID(), msg.GetProtocol())
+				stream, err := n.h().NewStream(ctx, msg.GetPeerID() /* TO */, msg.GetProtocol())
 				if err != nil {
 					log.Println("Error creating stream", err)
 					continue
