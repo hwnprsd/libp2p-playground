@@ -18,6 +18,13 @@ service TransactionService {
 			body: "*"
 		};
 	}
+
+	rpc CreateRule(CreateRuleData) returns (TransactionResponse) {
+		option (google.api.http) = {
+			post: "/v1/create-rule"
+			body: "*"
+		};
+	}
 }
 
 // This will be for external Http / GRPC Calls
@@ -41,3 +48,13 @@ message TransactionResponse {
 message SignatureRetrieval {
 	string key = 1;
 }
+
+message CreateRuleData {
+	string walletAddress = 1;
+	string ownerAddress = 2;
+	string comparator = 3;
+	string fromAddress = 4;
+	string toAddress = 5;
+	int32 targetValue = 6;
+}
+
