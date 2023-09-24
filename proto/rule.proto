@@ -2,6 +2,7 @@ syntax = "proto3";
 
 message Rule {
 	string walletAddress = 1;
+	repeated RuleMeta meta = 2; 
 }
 
 // Consider for base token transfers

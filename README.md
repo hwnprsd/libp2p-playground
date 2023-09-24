@@ -36,9 +36,9 @@ The goal of this repo is to create as complicated a network possible and test va
 - [ ] Define how the Rules look like
 - [ ] Interface for Declaring Rules
 
-- [ ] Define how a tx looks like
+- [x] Define how a tx looks like
 - [ ] Interface for checking if a Tx fits the rules
 
-- [ ] Transaction Parser module - Interface
+- [x] Transaction Parser module - Interface
 - [ ] Rules Parser Format
 - [ ] Rules / Transaction Enforcer
