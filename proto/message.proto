@@ -19,7 +19,7 @@ service TransactionService {
 		};
 	}
 
-	rpc CreateRule(CreateRuleData) returns (TransactionResponse) {
+	rpc HandleCreateRule(CreateRuleData) returns (TransactionResponse) {
 		option (google.api.http) = {
 			post: "/v1/create-rule"
 			body: "*"

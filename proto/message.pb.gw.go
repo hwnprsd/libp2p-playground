@@ -99,7 +99,7 @@ func local_request_TransactionService_HandleSigRetrieval_0(ctx context.Context, 
 
 }
 
-func request_TransactionService_CreateRule_0(ctx context.Context, marshaler runtime.Marshaler, client TransactionServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_TransactionService_HandleCreateRule_0(ctx context.Context, marshaler runtime.Marshaler, client TransactionServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateRuleData
 	var metadata runtime.ServerMetadata
 
@@ -111,12 +111,12 @@ func request_TransactionService_CreateRule_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.CreateRule(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.HandleCreateRule(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_TransactionService_CreateRule_0(ctx context.Context, marshaler runtime.Marshaler, server TransactionServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_TransactionService_HandleCreateRule_0(ctx context.Context, marshaler runtime.Marshaler, server TransactionServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateRuleData
 	var metadata runtime.ServerMetadata
 
@@ -128,7 +128,7 @@ func local_request_TransactionService_CreateRule_0(ctx context.Context, marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.CreateRule(ctx, &protoReq)
+	msg, err := server.HandleCreateRule(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -189,7 +189,7 @@ func RegisterTransactionServiceHandlerServer(ctx context.Context, mux *runtime.S
 
 	})
 
-	mux.Handle("POST", pattern_TransactionService_CreateRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_TransactionService_HandleCreateRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -197,12 +197,12 @@ func RegisterTransactionServiceHandlerServer(ctx context.Context, mux *runtime.S
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TransactionService/CreateRule", runtime.WithHTTPPathPattern("/v1/create-rule"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.TransactionService/HandleCreateRule", runtime.WithHTTPPathPattern("/v1/create-rule"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_TransactionService_CreateRule_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_TransactionService_HandleCreateRule_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -210,7 +210,7 @@ func RegisterTransactionServiceHandlerServer(ctx context.Context, mux *runtime.S
 			return
 		}
 
-		forward_TransactionService_CreateRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TransactionService_HandleCreateRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -299,25 +299,25 @@ func RegisterTransactionServiceHandlerClient(ctx context.Context, mux *runtime.S
 
 	})
 
-	mux.Handle("POST", pattern_TransactionService_CreateRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_TransactionService_HandleCreateRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TransactionService/CreateRule", runtime.WithHTTPPathPattern("/v1/create-rule"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/.TransactionService/HandleCreateRule", runtime.WithHTTPPathPattern("/v1/create-rule"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_TransactionService_CreateRule_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_TransactionService_HandleCreateRule_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_TransactionService_CreateRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TransactionService_HandleCreateRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -329,7 +329,7 @@ var (
 
 	pattern_TransactionService_HandleSigRetrieval_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "retrive"}, ""))
 
-	pattern_TransactionService_CreateRule_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "create-rule"}, ""))
+	pattern_TransactionService_HandleCreateRule_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "create-rule"}, ""))
 )
 
 var (
@@ -337,5 +337,5 @@ var (
 
 	forward_TransactionService_HandleSigRetrieval_0 = runtime.ForwardResponseMessage
 
-	forward_TransactionService_CreateRule_0 = runtime.ForwardResponseMessage
+	forward_TransactionService_HandleCreateRule_0 = runtime.ForwardResponseMessage
 )

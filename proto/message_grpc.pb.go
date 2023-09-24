@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	TransactionService_HandleTransaction_FullMethodName  = "/TransactionService/HandleTransaction"
 	TransactionService_HandleSigRetrieval_FullMethodName = "/TransactionService/HandleSigRetrieval"
-	TransactionService_CreateRule_FullMethodName         = "/TransactionService/CreateRule"
+	TransactionService_HandleCreateRule_FullMethodName   = "/TransactionService/HandleCreateRule"
 )
 
 // TransactionServiceClient is the client API for TransactionService service.
@@ -30,7 +30,7 @@ const (
 type TransactionServiceClient interface {
 	HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleSigRetrieval(ctx context.Context, in *SignatureRetrieval, opts ...grpc.CallOption) (*TransactionResponse, error)
-	CreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error)
+	HandleCreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error)
 }
 
 type transactionServiceClient struct {
@@ -59,9 +59,9 @@ func (c *transactionServiceClient) HandleSigRetrieval(ctx context.Context, in *S
 	return out, nil
 }
 
-func (c *transactionServiceClient) CreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error) {
+func (c *transactionServiceClient) HandleCreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error) {
 	out := new(TransactionResponse)
-	err := c.cc.Invoke(ctx, TransactionService_CreateRule_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TransactionService_HandleCreateRule_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c *transactionServiceClient) CreateRule(ctx context.Context, in *CreateRul
 type TransactionServiceServer interface {
 	HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error)
 	HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error)
-	CreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error)
+	HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
 
@@ -88,8 +88,8 @@ func (UnimplementedTransactionServiceServer) HandleTransaction(context.Context, 
 func (UnimplementedTransactionServiceServer) HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleSigRetrieval not implemented")
 }
-func (UnimplementedTransactionServiceServer) CreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateRule not implemented")
+func (UnimplementedTransactionServiceServer) HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandleCreateRule not implemented")
 }
 func (UnimplementedTransactionServiceServer) mustEmbedUnimplementedTransactionServiceServer() {}
 
@@ -140,20 +140,20 @@ func _TransactionService_HandleSigRetrieval_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TransactionService_CreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TransactionService_HandleCreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateRuleData)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransactionServiceServer).CreateRule(ctx, in)
+		return srv.(TransactionServiceServer).HandleCreateRule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TransactionService_CreateRule_FullMethodName,
+		FullMethod: TransactionService_HandleCreateRule_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionServiceServer).CreateRule(ctx, req.(*CreateRuleData))
+		return srv.(TransactionServiceServer).HandleCreateRule(ctx, req.(*CreateRuleData))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -174,8 +174,8 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TransactionService_HandleSigRetrieval_Handler,
 		},
 		{
-			MethodName: "CreateRule",
-			Handler:    _TransactionService_CreateRule_Handler,
+			MethodName: "HandleCreateRule",
+			Handler:    _TransactionService_HandleCreateRule_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
