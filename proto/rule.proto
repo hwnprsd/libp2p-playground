@@ -1,11 +1,17 @@
 syntax = "proto3";
+option go_package = "./proto";
 
 message Rule {
 	string walletAddress = 1;
-	repeated RuleMeta meta = 2; 
+	string ownerAddress = 2;
+	repeated RuleMeta meta = 3; 
 }
 
 // Consider for base token transfers
+// TODO: Make fromAddress into a group
 message RuleMeta {
-	string toAddress = 1; 
+	string comparator = 1;
+	string fromAddress = 2;
+	string toAddress = 3;
+	int32 targetValue = 4;
 } 

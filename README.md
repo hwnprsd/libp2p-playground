@@ -42,3 +42,9 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Transaction Parser module - Interface
 - [ ] Rules Parser Format
 - [ ] Rules / Transaction Enforcer
+
+## Rules
+
+- [ ] Sender Address based Rule
+  - [ ] Sender => Max <Token, Value>
+  - [ ]
