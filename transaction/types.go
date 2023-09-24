@@ -1,11 +1,9 @@
 package transaction
 
-type Tx struct {
-	From []byte
-	To   []byte
-}
-
-type TxParser interface {
-	Parse([]byte) Tx
-	Rules()
+type SolaceTranasction interface {
+	GetFrom() []byte
+	GetTo() []byte
+	GetTokenAddress() []byte
+	GetValue() []byte
+	GetSignatures() [][]byte
 }
