@@ -32,8 +32,6 @@ func (s *Squad) VerifyMessage(msg common.IncomingMessage) error {
 
 // Given a recieve-only channel, this funcion will recieve messages and handle them gracefully
 func (s *Squad) HandleIncomingMessages(ctx context.Context, msg common.IncomingMessage) {
-	log.Println("Handling incoming messages")
-
 	err := s.VerifyMessage(msg)
 	if err != nil {
 		log.Println("Message from invalid sender!")
@@ -48,6 +46,7 @@ func (s *Squad) HandleIncomingMessages(ctx context.Context, msg common.IncomingM
 	switch msg.GetProtocol() {
 	case common.DKG_PROTOCOL:
 		_, err = s.UpdateKeygenParty(ctx, updateMsg, msg.GetPeerID())
+		log.Println("KEYGEN Updated")
 	case common.SIGNING_PROTOCOL:
 		_, err = s.UpdateSigningParty(ctx, updateMsg, msg.GetPeerID())
 	}

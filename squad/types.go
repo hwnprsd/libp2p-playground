@@ -3,6 +3,7 @@ package squad
 import (
 	"context"
 	"log"
+	"sync"
 
 	"github.com/bnb-chain/tss-lib/v2/ecdsa/keygen"
 	"github.com/bnb-chain/tss-lib/v2/tss"
@@ -30,6 +31,8 @@ type Squad struct {
 
 	sigParty *tss.Party
 
+	rwLock sync.RWMutex
+
 	db db.Database
 }
 
@@ -43,6 +46,7 @@ func NewSquad(peerId peer.ID) *Squad {
 		peerId:        peerId,
 		peers:         make(SquadPeers),
 		isInitialized: false,
+		rwLock:        sync.RWMutex{},
 		// DKG and Key Info
 	}
 }
@@ -64,11 +68,10 @@ func (s *Squad) Init(ctx context.Context,
 		s.peers[peer] = true
 	}
 
-	log.Println(squadId, "- Squad Initialized")
-
-	database, err := db.NewLevelDB(squadId + s.peerId.String())
+	database, err := db.NewLevelDB("DB_" + squadId[3:6] + squadId[39:] + "_" + s.peerId.String())
 	if err != nil {
-		panic("error initing DB")
+		log.Println("error initing DB")
+		panic(err)
 	}
 
 	s.db = database
@@ -77,6 +80,7 @@ func (s *Squad) Init(ctx context.Context,
 	s.writeCh = writeCh
 	s.peerStore = peerStore
 	s.ID = squadId
+	log.Println("Squad Initialized Successfully")
 }
 
 func (s Squad) RefreshACL(ctx context.Context) {

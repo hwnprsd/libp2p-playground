@@ -15,7 +15,6 @@ import (
 )
 
 func (s *Squad) InitKeygen(ctx context.Context) chan error {
-	log.Println("Initing Keygen")
 	shouldContinueInit, errChan := s.setupKeygenParty(ctx)
 	if !shouldContinueInit {
 		return nil
@@ -34,6 +33,8 @@ func (s *Squad) startKeygen() {
 
 // Should continue init
 func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, errChan chan error) {
+	s.rwLock.Lock()
+	defer s.rwLock.Unlock()
 	// Keygen Party exists for this session
 	if s.keyGenParty != nil {
 		return false, nil
@@ -56,6 +57,7 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	}
 
 	party := keygen.NewLocalParty(params, outChan, endChan, *preParams)
+	log.Println("[SUCC] Preparams Generated")
 	s.keyGenParty = &party
 	s.preParams = preParams
 
@@ -84,7 +86,6 @@ func (s *Squad) handleKeygenEnd(data keygen.LocalPartySaveData) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println(data.ECDSAPub.Curve())
 	log.Println("Save Data Stored")
 
 	// x, y := data.ECDSAPub.X(), data.ECDSAPub.Y()
@@ -106,7 +107,8 @@ func (s *Squad) UpdateKeygenParty(
 	errChan := s.InitKeygen(ctx)
 	fromPartyId := s.GetSortedPartyID(&peerId)
 
-	_, err := (*s.keyGenParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
+	ok, err := (*s.keyGenParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
+	log.Println("Update OK?", ok)
 	if err != nil {
 		return nil, err
 	}

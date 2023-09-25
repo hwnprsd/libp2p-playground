@@ -2,29 +2,33 @@ package node
 
 import (
 	"context"
+	"log"
 
+	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/squad"
 )
 
 // Create the squad if not exists
-func (n *Node) SetupSquad(ctx context.Context, walletAddress string) {
+func (n *Node) SetupSquad(ctx context.Context, walletAddress common.WalletAddress) {
 	_, exists := n.squad[walletAddress]
-	squadId, err := n.smartContract.GetSquadID(n.PeerID())
-	if err != nil {
-		panic(err)
+
+	if exists {
+		return
 	}
 
-	outChan := n.setupOutgoingMessageHandler(ctx)
+	log.Println("Setting up Squad")
 
-	if !exists {
-		sqd := squad.NewSquad(n.PeerID())
-		peerStore := n.h().Peerstore()
-		sqd.Init(
-			ctx,
-			n.smartContract,
-			squadId,
-			outChan,
-			peerStore,
-		)
-	}
+	sqd := squad.NewSquad(n.PeerID())
+
+	outChan := n.setupOutgoingMessageHandler(ctx, walletAddress)
+	peerStore := n.h().Peerstore()
+	sqd.Init(
+		ctx,
+		n.smartContract,
+		walletAddress.String(),
+		outChan,
+		peerStore,
+	)
+
+	n.squad[walletAddress] = sqd
 }

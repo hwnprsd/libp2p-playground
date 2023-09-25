@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
 	smartcontract "github.com/solace-labs/skeyn/smart_contract"
 	"github.com/solace-labs/skeyn/squad"
@@ -38,7 +39,7 @@ var (
 	networkCid  = cid.NewCidV1(cid.Raw, mHash)
 )
 
-type SquadM map[string]*squad.Squad
+type SquadM map[common.WalletAddress]*squad.Squad
 
 type Node struct {
 	host *host.Host
@@ -67,11 +68,12 @@ func (n Node) PeerID() peer.ID {
 	return n.h().ID()
 }
 
-func (n *Node) Start(config utils.Config) {
-	ctx := context.Background()
+func (n *Node) Start(ctx context.Context, config utils.Config) {
 
 	pub, _ := config.GetPrivKey().GetPublic().Raw()
 	log.Println("Public Key", hex.EncodeToString(pub))
+
+	n.squad = make(SquadM)
 
 	n.CreateHost(ctx, config.GetPort(), config.GetPrivKey())
 
@@ -90,20 +92,18 @@ func (n *Node) Start(config utils.Config) {
 
 	n.SetupNotifications()
 
-	n.SetupSquads(ctx)
-
 	n.smartContract = &smartcontract.TestContract{}
 
-	incomingChan := n.setupMessageRecieverHandler(ctx)
+	n.setupMessageRecieverHandler()
 	// Instead of having a channel, you could just call the function on the target squad
 	// TODO: Rethink this 'incoming channel'  approach
-	go n.squad.HandleIncomingMessages(ctx, incomingChan)
 
 	// TODO: Setup an updater which keeps checking if the network state is valid with the node
 
 	if config.GetShouldRunExternalRPCServer() {
-		n.SetupGRPC()
+		n.SetupGRPC(ctx)
 	}
+
 }
 
 func (n *Node) CreateHost(ctx context.Context, port int, privKey crypto.PrivKey) {
