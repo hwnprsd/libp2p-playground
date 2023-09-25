@@ -16,6 +16,9 @@ import (
 )
 
 func (s *Squad) InitSigning(ctx context.Context, message []byte) chan error {
+	s.rwLock.Lock()
+	defer s.rwLock.Unlock()
+
 	log.Println("Initing Signing")
 	shouldContinueInit, errChan := s.setupSigningParty(ctx, message)
 	if !shouldContinueInit {
