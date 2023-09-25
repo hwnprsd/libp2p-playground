@@ -33,8 +33,10 @@ func (s *Squad) startKeygen() {
 
 // Should continue init
 func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, errChan chan error) {
+	// Message flooding causes squad to setup keygen multiple times
 	s.rwLock.Lock()
 	defer s.rwLock.Unlock()
+
 	// Keygen Party exists for this session
 	if s.keyGenParty != nil {
 		return false, nil
