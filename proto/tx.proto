@@ -1,0 +1,12 @@
+syntax = "proto3";
+option go_package = "./proto";
+
+message SolaceTx {
+	string namespace = 1;
+	string walletAddr = 2;
+	string senderAddr = 3;
+	string toAddr = 4;
+	string tokenAddr = 5;
+	int32 value = 6;
+	repeated string signatures = 7;
+}

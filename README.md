@@ -21,6 +21,7 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Implement external request handlers, which can trigger events
 - [x] Port this over to the TSS network or port that to this network (DKG + Signing)
 - [x] Handle storing & retreving of signed messages (Partial)
+- [ ] Gracefully handle panics
 
 ## Interface
 

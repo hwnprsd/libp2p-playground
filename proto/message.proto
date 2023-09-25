@@ -1,5 +1,7 @@
 syntax = "proto3";
 import "google/api/annotations.proto";
+import "proto/rule.proto";
+import "proto/tx.proto";
 
 option go_package = "./proto";
 
@@ -8,6 +10,13 @@ service TransactionService {
 	rpc HandleTransaction(Transaction) returns (TransactionResponse){
 	        option (google.api.http) = {
 		    post: "/v1/transaction"
+		    body: "*"
+		};
+	}
+
+	rpc HandleSignatureRequest(SolaceTx) returns (TransactionResponse) {
+	        option (google.api.http) = {
+		    post: "/v1/sign-request"
 		    body: "*"
 		};
 	}
@@ -52,10 +61,6 @@ message SignatureRetrieval {
 
 message CreateRuleData {
 	string walletAddress = 1;
-	string ownerAddress = 2;
-	string comparator = 3;
-	string fromAddress = 4;
-	string toAddress = 5;
-	int32 targetValue = 6;
+	SpendingCap spendingCap = 2;
 }
 
