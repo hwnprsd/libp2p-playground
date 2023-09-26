@@ -52,7 +52,7 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	outChan := make(chan tss.Message)
 	endChan := make(chan keygen.LocalPartySaveData)
 
-	preParams, err := keygen.GeneratePreParams(2 * time.Minute)
+	preParams, err := keygen.GeneratePreParams(3 * time.Minute)
 	if err != nil {
 		log.Println("Error generating pre-params")
 		panic(err)
