@@ -1,6 +1,8 @@
 syntax = "proto3";
 option go_package = "./proto";
 
+import "google/protobuf/timestamp.proto";
+
 message SolaceTx {
 	string namespace = 1;
 	string walletAddr = 2;
@@ -9,4 +11,11 @@ message SolaceTx {
 	string tokenAddr = 5;
 	int32 value = 6;
 	repeated string signatures = 7;
+}
+
+message Signature {
+	string id = 1;
+	google.protobuf.Timestamp timestamp = 2;
+	string signature = 3;
+	SolaceTx tx = 4;
 }

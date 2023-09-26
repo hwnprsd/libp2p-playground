@@ -23,6 +23,7 @@ const (
 	TransactionService_HandleSignatureRequest_FullMethodName = "/TransactionService/HandleSignatureRequest"
 	TransactionService_HandleSigRetrieval_FullMethodName     = "/TransactionService/HandleSigRetrieval"
 	TransactionService_HandleCreateRule_FullMethodName       = "/TransactionService/HandleCreateRule"
+	TransactionService_HandleMetricsQuery_FullMethodName     = "/TransactionService/HandleMetricsQuery"
 )
 
 // TransactionServiceClient is the client API for TransactionService service.
@@ -33,6 +34,7 @@ type TransactionServiceClient interface {
 	HandleSignatureRequest(ctx context.Context, in *SolaceTx, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleSigRetrieval(ctx context.Context, in *SignatureRetrieval, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleCreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error)
+	HandleMetricsQuery(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MetricsResponse, error)
 }
 
 type transactionServiceClient struct {
@@ -79,6 +81,15 @@ func (c *transactionServiceClient) HandleCreateRule(ctx context.Context, in *Cre
 	return out, nil
 }
 
+func (c *transactionServiceClient) HandleMetricsQuery(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MetricsResponse, error) {
+	out := new(MetricsResponse)
+	err := c.cc.Invoke(ctx, TransactionService_HandleMetricsQuery_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransactionServiceServer is the server API for TransactionService service.
 // All implementations must embed UnimplementedTransactionServiceServer
 // for forward compatibility
@@ -87,6 +98,7 @@ type TransactionServiceServer interface {
 	HandleSignatureRequest(context.Context, *SolaceTx) (*TransactionResponse, error)
 	HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error)
 	HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error)
+	HandleMetricsQuery(context.Context, *Empty) (*MetricsResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
 
@@ -105,6 +117,9 @@ func (UnimplementedTransactionServiceServer) HandleSigRetrieval(context.Context,
 }
 func (UnimplementedTransactionServiceServer) HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleCreateRule not implemented")
+}
+func (UnimplementedTransactionServiceServer) HandleMetricsQuery(context.Context, *Empty) (*MetricsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandleMetricsQuery not implemented")
 }
 func (UnimplementedTransactionServiceServer) mustEmbedUnimplementedTransactionServiceServer() {}
 
@@ -191,6 +206,24 @@ func _TransactionService_HandleCreateRule_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransactionService_HandleMetricsQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).HandleMetricsQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransactionService_HandleMetricsQuery_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).HandleMetricsQuery(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransactionService_ServiceDesc is the grpc.ServiceDesc for TransactionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +246,10 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HandleCreateRule",
 			Handler:    _TransactionService_HandleCreateRule_Handler,
+		},
+		{
+			MethodName: "HandleMetricsQuery",
+			Handler:    _TransactionService_HandleMetricsQuery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

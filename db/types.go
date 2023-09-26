@@ -1,9 +1,10 @@
 package db
 
 type Database interface {
-	Get(key []byte) ([]byte, error)
-	Set(key []byte, value []byte) error
-	Delete(key []byte) error
+	Get([]byte) ([]byte, error)
+	Set([]byte, []byte) error
+	Delete([]byte) error
+	GetAll(string) [][]byte
 }
 
 // We defensively turn nil keys or values into []byte{} for

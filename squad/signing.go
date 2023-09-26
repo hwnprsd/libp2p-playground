@@ -14,7 +14,10 @@ import (
 	"github.com/solace-labs/skeyn/proto"
 	protob "google.golang.org/protobuf/proto"
 	protoc "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+const TX_PREFIX = "SOLACETX####"
 
 func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
 	s.rwLock.Lock()
@@ -22,20 +25,22 @@ func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
 
 	ctx := context.Background()
 
-	err := s.validateTx(tx)
-	if err != nil {
-		log.Println("error validating Tx", err)
-		return nil
-	}
-
-	log.Println("Initing Signing")
 	shouldContinueInit, errChan := s.setupSigningParty(ctx, tx)
 	if !shouldContinueInit {
 		return nil
 	}
+
+	// Only run it if not already inited
+	err := s.validateTx(tx)
+	if err != nil {
+		log.Println("error validating Tx", err)
+		s.cleanupSigning()
+		return nil
+	}
+
 	go func() {
 		err := (*s.sigParty).Start()
-		log.Println("Starting to Sign")
+		log.Println("Starting sig process")
 		if err != nil {
 			log.Println("SIG_ERROR", err)
 		}
@@ -88,7 +93,7 @@ func (s *Squad) setupSigningParty(ctx context.Context, tx *proto.SolaceTx) (shou
 				s.handleSigningMessage(outData, tx)
 			case endData := <-endChan:
 				// Find a way to parse a unique ID for the transaction
-				s.handleSessionEnd(&endData, []byte(tx.GetWalletAddr()))
+				s.handleSessionEnd(&endData, tx)
 			}
 		}
 	}()
@@ -98,19 +103,85 @@ func (s *Squad) setupSigningParty(ctx context.Context, tx *proto.SolaceTx) (shou
 	return true, errChan
 }
 
-func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, key []byte) {
-	err := s.db.Set(key, data.Signature)
+func (s *Squad) cleanupSigning() {
+	s.sigParty = nil
+}
+
+func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.SolaceTx) {
+	txB, err := protob.Marshal(tx)
+	if err != nil {
+		log.Println("error marshalling tx", err)
+		s.cleanupSigning()
+		return
+	}
+
+	txHash := hex.EncodeToString(txB)
+	key := []byte(TX_PREFIX + txHash)
+
+	val := &proto.Signature{
+		Signature: hex.EncodeToString(data.Signature),
+		Timestamp: timestamppb.Now(),
+		Id:        txHash,
+		Tx:        tx,
+	}
+
+	valB, err := protob.Marshal(val)
+	if err != nil {
+		log.Println("Error marshalling signature value")
+	}
+
+	err = s.db.Set(key, valB)
+
 	if err != nil {
 		log.Println("Error setting signature")
 	} else {
 		log.Println("Sig Saved")
 		log.Println(hex.EncodeToString(data.Signature))
 	}
-	s.sigParty = nil
+
+	index := s.getDbIndex()
+	_ = s.db.Set(index.Bytes(), valB)
+	_ = s.updateIndex()
+
+	s.cleanupSigning()
 }
 
 func (s *Squad) GetSig(key []byte) ([]byte, error) {
 	return s.db.Get(key)
+}
+
+func (s *Squad) GetTransactions() []*proto.Signature {
+	index := s.getDbIndex()
+	sigs := make([]*proto.Signature, 0)
+	count := 0
+
+	for i := 0; i < index.Int(); i++ {
+		txB, err := s.db.Get(IndexFromInt(i))
+		if err != nil {
+			log.Println("Error fetching tx at index", i)
+			continue
+		}
+		sig := &proto.Signature{}
+		err = protob.Unmarshal(txB, sig)
+		if err != nil {
+			log.Println("[WARN] Error unmarshalling tx", err)
+			continue
+		}
+		sigs = append(sigs, sig)
+		count++
+	}
+	log.Println("Sig Len", count)
+	// txSlice := s.db.GetAll(TX_PREFIX)
+	// for _, txB := range txSlice {
+	// 	sig := &proto.Signature{}
+	// 	err := protob.Unmarshal(txB, sig)
+	// 	if err != nil {
+	// 		log.Println("[WARN] Error unmarshalling tx", err)
+	// 		continue
+	// 	}
+	// 	sigs = append(sigs, sig)
+	// }
+	return sigs
 }
 
 func (s *Squad) UpdateSigningParty(
@@ -130,8 +201,9 @@ func (s *Squad) UpdateSigningParty(
 	errChan := s.InitSigning(tx)
 	fromPartyId := s.GetSortedPartyID(&peerId)
 
-	_, err = (*s.sigParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
-	if err != nil {
+	_, err2 := (*s.sigParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
+
+	if err2 != nil {
 		return nil, err
 	}
 	return errChan, nil
