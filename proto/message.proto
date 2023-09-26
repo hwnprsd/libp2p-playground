@@ -34,6 +34,13 @@ service TransactionService {
 			body: "*"
 		};
 	}
+
+	rpc HandleMetricsQuery(Empty) returns (MetricsResponse) {
+		option (google.api.http) = {
+			get: "/v1/metrics"
+		};
+	}
+
 }
 
 // This will be for external Http / GRPC Calls
@@ -63,4 +70,16 @@ message CreateRuleData {
 	string walletAddress = 1;
 	SpendingCap spendingCap = 2;
 }
+
+message MetricsResponse {
+	repeated string peers = 1;
+	repeated Squad squads = 2;
+}
+
+message Squad {
+	string walletAddr = 1;
+	repeated Signature signatures = 2; 
+}
+
+message Empty {}
 

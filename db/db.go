@@ -5,6 +5,7 @@ import (
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/errors"
+	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
 type LevelDB struct {
@@ -49,4 +50,14 @@ func (db *LevelDB) Delete(key []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (db *LevelDB) GetAll(prefix string) [][]byte {
+	iter := db.db.NewIterator(util.BytesPrefix([]byte(prefix)), nil)
+	values := make([][]byte, 0)
+	for iter.Next() {
+		values = append(values, iter.Value())
+	}
+	iter.Release()
+	return values
 }

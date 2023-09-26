@@ -1,4 +1,4 @@
-## LibP2P playground
+## Solace Phase02 Keynet
 
 The goal of this repo is to create as complicated a network possible and test various scenerios:
 
@@ -29,24 +29,30 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Plan for Node / Network restarts (SaveData caching)
 - [ ] DKG should be done as and when the network is inititalized. DKG should be incrementally done as and when new wallets come under management
 - [ ] Signing Verification should take place, with the SC data as the source of truth (till Phase03)
-- [ ] Specify the ethereum transaction format for the Transaction Wrapper
-- [ ] Unwrap, Verify and Sign
+- [x] Specify the ethereum transaction format for the Transaction Wrapper
+- [x] Unwrap, Verify and Sign
 - [x] Signatures and metadata should be stored by individual nodes on their respective DBs (Squad level DBs)
 
 ## Wrappers
 
-- [ ] Define how the Rules look like
-- [ ] Interface for Declaring Rules
+- [x] Define how the Rules look like
+- [x] Interface for Declaring Rules
 
 - [x] Define how a tx looks like
-- [ ] Interface for checking if a Tx fits the rules
+- [x] Interface for checking if a Tx fits the rules
 
 - [x] Transaction Parser module - Interface
-- [ ] Rules Parser Format
-- [ ] Rules / Transaction Enforcer
+- [x] Rules Parser Format
+- [x] Rules / Transaction Enforcer
 
 ## Rules
 
-- [ ] Sender Address based Rule
-  - [ ] Sender => Max <Token, Value>
-  - [ ] Store spend data
+- [x] Sender Address based Rule
+  - [x] Sender => Max <Token, Value>
+  - [x] Store spend data
+
+## Metrics
+
+- [ ] Peer ID List
+- [ ] Squad IDs / Wallet Addresses
+- [ ] Stored Signatures per Squad
