@@ -58,6 +58,8 @@ func (s *Squad) Init(ctx context.Context,
 	peerStore peerstore.Peerstore,
 ) {
 	s.sc = sc
+	s.ID = squadId
+
 	peers, err := s.sc.GetPeerList(squadId)
 	if err != nil {
 		panic(err)
@@ -68,9 +70,9 @@ func (s *Squad) Init(ctx context.Context,
 		s.peers[peer] = true
 	}
 
-	database, err := db.NewLevelDB("DB_" + squadId[3:6] + squadId[39:] + "_" + s.peerId.String())
+	database, err := db.NewLevelDB(s.dbName())
 	if err != nil {
-		log.Println("error initing DB")
+		log.Println("error initing DB -", s.dbName())
 		panic(err)
 	}
 
@@ -79,21 +81,9 @@ func (s *Squad) Init(ctx context.Context,
 	s.ctx = ctx
 	s.writeCh = writeCh
 	s.peerStore = peerStore
-	s.ID = squadId
 	log.Println("Squad Initialized Successfully")
 }
 
-func (s Squad) RefreshACL(ctx context.Context) {
-	// Track last refresh?
-}
-
-func (s Squad) MakeACLVerificationMessage() {
-
-}
-
-func (s Squad) VerifyACL() {}
-
-func (s Squad) Publish(message []byte) error {
-	log.Println("Message Published")
-	return nil
+func (s *Squad) dbName() string {
+	return "DB_" + s.ID[2:] + "_" + s.peerId.String()
 }

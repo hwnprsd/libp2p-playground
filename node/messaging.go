@@ -5,9 +5,11 @@ import (
 	"log"
 
 	"github.com/solace-labs/skeyn/common"
+	"github.com/solace-labs/skeyn/proto"
 	"github.com/solace-labs/skeyn/utils"
 
 	"github.com/libp2p/go-libp2p/core/network"
+	protob "google.golang.org/protobuf/proto"
 )
 
 // Message sink
@@ -51,6 +53,21 @@ func (n *Node) setupMessageRecieverHandler() {
 			walletAddress := common.NewWalletAddress(walletAddrBytes)
 			n.SetupSquad(context.Background(), walletAddress)
 			n.squad[walletAddress].HandleIncomingMessages(context.Background(), nodeMessage)
+		})
+
+		n.h().SetStreamHandler(common.CREATE_RULE, func(s network.Stream) {
+			walletAddrBytes, data, err := utils.ReadStream(s)
+			if err != nil {
+				log.Println("Error Reading Stream Data")
+				log.Println(err)
+			}
+			rule := &proto.CreateRuleData{}
+			err = protob.Unmarshal(data, rule)
+			if err != nil {
+				log.Println("Error unmarshalling tx")
+			}
+			walletAddress := common.NewWalletAddress(walletAddrBytes)
+			n.squad[walletAddress].CreateRule(rule)
 		})
 
 	}()

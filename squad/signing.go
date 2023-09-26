@@ -12,12 +12,24 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
+	protob "google.golang.org/protobuf/proto"
 	protoc "google.golang.org/protobuf/proto"
 )
 
-func (s *Squad) InitSigning(ctx context.Context, message []byte) chan error {
+func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
+	s.rwLock.Lock()
+	defer s.rwLock.Unlock()
+
+	ctx := context.Background()
+
+	err := s.validateTx(tx)
+	if err != nil {
+		log.Println("error validating Tx", err)
+		return nil
+	}
+
 	log.Println("Initing Signing")
-	shouldContinueInit, errChan := s.setupSigningParty(ctx, message)
+	shouldContinueInit, errChan := s.setupSigningParty(ctx, tx)
 	if !shouldContinueInit {
 		return nil
 	}
@@ -31,7 +43,7 @@ func (s *Squad) InitSigning(ctx context.Context, message []byte) chan error {
 	return errChan
 }
 
-func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldContinueInit bool, errChan chan error) {
+func (s *Squad) setupSigningParty(ctx context.Context, tx *proto.SolaceTx) (shouldContinueInit bool, errChan chan error) {
 	// KeyGen is not completed
 	if s.keyGenData.LocalPartySaveData == nil {
 		// Check if it exists in the DB
@@ -58,7 +70,7 @@ func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldCo
 		return false, nil
 	}
 
-	msg := new(big.Int).SetBytes(message)
+	msg := new(big.Int).SetBytes([]byte("DATA"))
 	parties := s.SortedPartyIDs()
 	peerCtx := tss.NewPeerContext(parties)
 	params := tss.NewParameters(tss.S256(), peerCtx, s.PartyID(), len(parties), len(parties)-1)
@@ -73,9 +85,10 @@ func (s *Squad) setupSigningParty(ctx context.Context, message []byte) (shouldCo
 			// case <-ctx.Done():
 			// 	return
 			case outData := <-outChan:
-				s.handleSigningMessage(outData, message)
+				s.handleSigningMessage(outData, tx)
 			case endData := <-endChan:
-				s.handleSessionEnd(&endData, []byte(hex.EncodeToString(message)))
+				// Find a way to parse a unique ID for the transaction
+				s.handleSessionEnd(&endData, []byte(tx.GetWalletAddr()))
 			}
 		}
 	}()
@@ -105,24 +118,39 @@ func (s *Squad) UpdateSigningParty(
 	message UpdateMessage,
 	peerId peer.ID,
 ) (chan error, error) {
-	errChan := s.InitSigning(ctx, message.GetPayload())
+
+	tx := &proto.SolaceTx{}
+	err := protob.Unmarshal(message.GetPayload(), tx)
+	if err != nil {
+		log.Println("error unmarshalling tx")
+		return nil, err
+	}
+
+	message.GetPayload()
+	errChan := s.InitSigning(tx)
 	fromPartyId := s.GetSortedPartyID(&peerId)
 
-	_, err := (*s.sigParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
+	_, err = (*s.sigParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())
 	if err != nil {
 		return nil, err
 	}
 	return errChan, nil
 }
 
-func (s *Squad) handleSigningMessage(message tss.Message, signingData []byte) {
+func (s *Squad) handleSigningMessage(message tss.Message, tx *proto.SolaceTx) {
 	log.Printf("[SIGNING] Received a message from outChan: %+v\n", message)
 	dest := message.GetTo()
 	wireBytes, _, _ := message.WireBytes()
+
+	txB, err := protob.Marshal(tx)
+	if err != nil {
+		log.Println("{ERR} - Error marshalling payload")
+	}
+
 	outMsg, err := protoc.Marshal(&proto.UpdateMessage{
 		WireMessage: wireBytes,
 		IsBroadcast: dest == nil,
-		Payload:     signingData,
+		Payload:     txB,
 	})
 	if err != nil {
 		log.Println("{ERR} - Error serializing message to protobuf obj")

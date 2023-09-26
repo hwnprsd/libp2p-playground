@@ -10,7 +10,7 @@ import (
 	"github.com/solace-labs/skeyn/proto"
 )
 
-func (s Squad) LP_SAVE_DATA_KEY() string {
+func (s *Squad) LP_SAVE_DATA_KEY() string {
 	return "SAVE_DATA_" + s.ID + s.peerId.String()
 }
 

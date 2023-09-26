@@ -11,6 +11,7 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/solace-labs/skeyn/common"
 	proto "github.com/solace-labs/skeyn/proto"
+	protob "google.golang.org/protobuf/proto"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -86,7 +87,7 @@ func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*
 		n.squad[walletAddr].InitKeygen(ctx)
 	} else {
 		// Verify Incoming Message
-		n.squad[walletAddr].InitSigning(ctx, data)
+		// n.squad[walletAddr].InitSigning(ctx, data)
 	}
 
 	key := hex.EncodeToString(data)
@@ -115,6 +116,49 @@ func (n *Node) HandleSigRetrieval(ctx context.Context, req *proto.SignatureRetri
 	return &proto.TransactionResponse{Success: true, Msg: hex.EncodeToString(sig)}, nil
 }
 
-func (n *Node) HandleCreateRule(ctx context.Context, data *proto.CreateRuleData) (*proto.TransactionResponse, error) {
-	return nil, nil
+// Create a rule for a smart-contract wallet
+func (n *Node) HandleCreateRule(ctx context.Context, req *proto.CreateRuleData) (*proto.TransactionResponse, error) {
+	// TOOD: Check if the message is coming from the owner of the SCW
+	walletAddressEth := ethcommon.HexToAddress(req.WalletAddress)
+	if walletAddressEth.Bytes() == nil {
+		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [1]"}, nil
+	}
+
+	walletAddr := common.NewEthWalletAddress(walletAddressEth)
+
+	if _, exists := n.squad[walletAddr]; !exists {
+		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
+	}
+
+	sqd := n.squad[walletAddr]
+	err := sqd.CreateRule(req)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+	}
+
+	outMsg, err := protob.Marshal(req)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: "Error marshalling rul"}, nil
+	}
+	// TODO: Broadcasting here to avoid recurring broadcasts. This is a short term solution
+	sqd.Broadcast(common.CREATE_RULE, outMsg)
+
+	return &proto.TransactionResponse{Success: true, Msg: "Rule stored"}, nil
+}
+
+func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) (*proto.TransactionResponse, error) {
+	log.Println("Handling Sign Request")
+	walletAddressEth := ethcommon.HexToAddress(req.WalletAddr)
+	if walletAddressEth.Bytes() == nil {
+		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [1]"}, nil
+	}
+
+	walletAddr := common.NewEthWalletAddress(walletAddressEth)
+	if _, exists := n.squad[walletAddr]; !exists {
+		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
+	}
+
+	n.squad[walletAddr].InitSigning(req)
+
+	return &proto.TransactionResponse{Success: true, Msg: "Sign Inited"}, nil
 }

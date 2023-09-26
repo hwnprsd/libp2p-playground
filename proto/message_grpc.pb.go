@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TransactionService_HandleTransaction_FullMethodName  = "/TransactionService/HandleTransaction"
-	TransactionService_HandleSigRetrieval_FullMethodName = "/TransactionService/HandleSigRetrieval"
-	TransactionService_HandleCreateRule_FullMethodName   = "/TransactionService/HandleCreateRule"
+	TransactionService_HandleTransaction_FullMethodName      = "/TransactionService/HandleTransaction"
+	TransactionService_HandleSignatureRequest_FullMethodName = "/TransactionService/HandleSignatureRequest"
+	TransactionService_HandleSigRetrieval_FullMethodName     = "/TransactionService/HandleSigRetrieval"
+	TransactionService_HandleCreateRule_FullMethodName       = "/TransactionService/HandleCreateRule"
 )
 
 // TransactionServiceClient is the client API for TransactionService service.
@@ -29,6 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransactionServiceClient interface {
 	HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error)
+	HandleSignatureRequest(ctx context.Context, in *SolaceTx, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleSigRetrieval(ctx context.Context, in *SignatureRetrieval, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleCreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error)
 }
@@ -44,6 +46,15 @@ func NewTransactionServiceClient(cc grpc.ClientConnInterface) TransactionService
 func (c *transactionServiceClient) HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error) {
 	out := new(TransactionResponse)
 	err := c.cc.Invoke(ctx, TransactionService_HandleTransaction_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transactionServiceClient) HandleSignatureRequest(ctx context.Context, in *SolaceTx, opts ...grpc.CallOption) (*TransactionResponse, error) {
+	out := new(TransactionResponse)
+	err := c.cc.Invoke(ctx, TransactionService_HandleSignatureRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,6 +84,7 @@ func (c *transactionServiceClient) HandleCreateRule(ctx context.Context, in *Cre
 // for forward compatibility
 type TransactionServiceServer interface {
 	HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error)
+	HandleSignatureRequest(context.Context, *SolaceTx) (*TransactionResponse, error)
 	HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error)
 	HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
@@ -84,6 +96,9 @@ type UnimplementedTransactionServiceServer struct {
 
 func (UnimplementedTransactionServiceServer) HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleTransaction not implemented")
+}
+func (UnimplementedTransactionServiceServer) HandleSignatureRequest(context.Context, *SolaceTx) (*TransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandleSignatureRequest not implemented")
 }
 func (UnimplementedTransactionServiceServer) HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleSigRetrieval not implemented")
@@ -118,6 +133,24 @@ func _TransactionService_HandleTransaction_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TransactionServiceServer).HandleTransaction(ctx, req.(*Transaction))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TransactionService_HandleSignatureRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SolaceTx)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).HandleSignatureRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransactionService_HandleSignatureRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).HandleSignatureRequest(ctx, req.(*SolaceTx))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -168,6 +201,10 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HandleTransaction",
 			Handler:    _TransactionService_HandleTransaction_Handler,
+		},
+		{
+			MethodName: "HandleSignatureRequest",
+			Handler:    _TransactionService_HandleSignatureRequest_Handler,
 		},
 		{
 			MethodName: "HandleSigRetrieval",

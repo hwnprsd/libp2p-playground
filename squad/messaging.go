@@ -51,6 +51,7 @@ func (s *Squad) HandleIncomingMessages(ctx context.Context, msg common.IncomingM
 		_, err = s.UpdateSigningParty(ctx, updateMsg, msg.GetPeerID())
 	}
 	if err != nil {
+		// FIXME: Not sure why this gets called on every round of signing
 		log.Println("[ERR] Updating Keygen/Signing party", err)
 	}
 }

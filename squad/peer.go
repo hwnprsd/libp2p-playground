@@ -26,7 +26,7 @@ func (s SquadPeers) Match(moniker string) *peer.ID {
 	return nil
 }
 
-func (s Squad) SortedPartyIDs() []*tss.PartyID {
+func (s *Squad) SortedPartyIDs() []*tss.PartyID {
 	parties := make([]*tss.PartyID, 0)
 	for p := range s.peers {
 		parties = append(parties, s.ToPartyID(&p))
@@ -36,7 +36,7 @@ func (s Squad) SortedPartyIDs() []*tss.PartyID {
 }
 
 // TODO: Better error handling
-func (s Squad) ToPartyID(p *peer.ID) *tss.PartyID {
+func (s *Squad) ToPartyID(p *peer.ID) *tss.PartyID {
 	pubKeyBytes, _ := s.peerStore.PubKey(*p).Raw()
 	return tss.NewPartyID(
 		p.String(),
@@ -45,7 +45,7 @@ func (s Squad) ToPartyID(p *peer.ID) *tss.PartyID {
 	)
 }
 
-func (s Squad) GetSortedPartyID(p *peer.ID) *tss.PartyID {
+func (s *Squad) GetSortedPartyID(p *peer.ID) *tss.PartyID {
 	targetId := s.ToPartyID(p)
 	for _, id := range s.SortedPartyIDs() {
 		if id.Id == targetId.Id {
@@ -55,7 +55,7 @@ func (s Squad) GetSortedPartyID(p *peer.ID) *tss.PartyID {
 	return nil
 }
 
-func (s Squad) PartyID() *tss.PartyID {
+func (s *Squad) PartyID() *tss.PartyID {
 	selfId := s.ToPartyID(&s.peerId)
 	for _, id := range s.SortedPartyIDs() {
 		if id.Id == selfId.Id {
@@ -65,6 +65,6 @@ func (s Squad) PartyID() *tss.PartyID {
 	return nil
 }
 
-func (s Squad) ToPeerID(p *tss.PartyID) *peer.ID {
+func (s *Squad) ToPeerID(p *tss.PartyID) *peer.ID {
 	return s.peers.Match(p.GetMoniker())
 }
