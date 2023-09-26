@@ -17,7 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const TX_PREFIX = "TX"
+const TX_PREFIX = "SOLACETX####"
 
 func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
 	s.rwLock.Lock()
@@ -138,11 +138,50 @@ func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.Solace
 		log.Println("Sig Saved")
 		log.Println(hex.EncodeToString(data.Signature))
 	}
+
+	index := s.getDbIndex()
+	_ = s.db.Set(index.Bytes(), valB)
+	_ = s.updateIndex()
+
 	s.cleanupSigning()
 }
 
 func (s *Squad) GetSig(key []byte) ([]byte, error) {
 	return s.db.Get(key)
+}
+
+func (s *Squad) GetTransactions() []*proto.Signature {
+	index := s.getDbIndex()
+	sigs := make([]*proto.Signature, 0)
+	count := 0
+
+	for i := 0; i < index.Int(); i++ {
+		txB, err := s.db.Get(IndexFromInt(i))
+		if err != nil {
+			log.Println("Error fetching tx at index", i)
+			continue
+		}
+		sig := &proto.Signature{}
+		err = protob.Unmarshal(txB, sig)
+		if err != nil {
+			log.Println("[WARN] Error unmarshalling tx", err)
+			continue
+		}
+		sigs = append(sigs, sig)
+		count++
+	}
+	log.Println("Sig Len", count)
+	// txSlice := s.db.GetAll(TX_PREFIX)
+	// for _, txB := range txSlice {
+	// 	sig := &proto.Signature{}
+	// 	err := protob.Unmarshal(txB, sig)
+	// 	if err != nil {
+	// 		log.Println("[WARN] Error unmarshalling tx", err)
+	// 		continue
+	// 	}
+	// 	sigs = append(sigs, sig)
+	// }
+	return sigs
 }
 
 func (s *Squad) UpdateSigningParty(

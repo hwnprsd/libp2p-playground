@@ -164,12 +164,19 @@ func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) 
 }
 
 func (n Node) HandleMetricsQuery(ctx context.Context, req *proto.Empty) (*proto.MetricsResponse, error) {
-	resp := proto.MetricsResponse{Peers: make([]string, 0), Squads: make([]*proto.Squad, 0)}
+	resp := &proto.MetricsResponse{Peers: make([]string, 0), Squads: make([]*proto.Squad, 0)}
 
 	for _, peer := range n.h().Network().Peers() {
 		resp.Peers = append(resp.Peers, peer.ShortString())
 	}
+	resp.Peers = append(resp.Peers, n.h().ID().ShortString())
 
-	for sq, val := range n.squad {
+	for _, val := range n.squad {
+		s := &proto.Squad{
+			WalletAddr: val.ID,
+			Signatures: val.GetTransactions(),
+		}
+		resp.Squads = append(resp.Squads, s)
 	}
+	return resp, nil
 }

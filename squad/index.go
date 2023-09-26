@@ -8,9 +8,20 @@ import (
 
 type index []byte
 
-func (i index) Int32() int32 {
-	value := int32(binary.LittleEndian.Uint32(i))
+func (i index) Int() int {
+	value := int(binary.LittleEndian.Uint32(i))
 	return value
+}
+
+func (i index) Bytes() []byte {
+	return i
+}
+
+func IndexFromInt(val int) index {
+	// Convert int32 to byte slice
+	valueBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(valueBytes, uint32(val))
+	return index(valueBytes)
 }
 
 const db_index_key = "DB_INDEX"
