@@ -22,17 +22,20 @@ func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
 
 	ctx := context.Background()
 
-	err := s.validateTx(tx)
-	if err != nil {
-		log.Println("error validating Tx", err)
-		return nil
-	}
-
 	log.Println("Initing Signing")
 	shouldContinueInit, errChan := s.setupSigningParty(ctx, tx)
 	if !shouldContinueInit {
 		return nil
 	}
+
+	// Only run it if not already inited
+	err := s.validateTx(tx)
+	if err != nil {
+		log.Println("error validating Tx", err)
+		s.cleanupSigning()
+		return nil
+	}
+
 	go func() {
 		err := (*s.sigParty).Start()
 		log.Println("Starting to Sign")
@@ -98,6 +101,10 @@ func (s *Squad) setupSigningParty(ctx context.Context, tx *proto.SolaceTx) (shou
 	return true, errChan
 }
 
+func (s *Squad) cleanupSigning() {
+	s.sigParty = nil
+}
+
 func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, key []byte) {
 	err := s.db.Set(key, data.Signature)
 	if err != nil {
@@ -106,7 +113,7 @@ func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, key []byte) {
 		log.Println("Sig Saved")
 		log.Println(hex.EncodeToString(data.Signature))
 	}
-	s.sigParty = nil
+	s.cleanupSigning()
 }
 
 func (s *Squad) GetSig(key []byte) ([]byte, error) {

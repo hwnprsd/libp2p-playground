@@ -51,7 +51,7 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 		return fmt.Errorf("Error writing rulebook back to DB - %e", err)
 	}
 
-	log.Println("New rule set")
+	log.Printf("New Spending Cap Set - \nCurr = %d\nCap = %d\n", rule.SpendingCap.CurrentValue, rule.SpendingCap.Cap)
 
 	return nil
 }
