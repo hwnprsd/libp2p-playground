@@ -1,3 +1,6 @@
+
+![image](https://github.com/solace-labs/keynet/assets/103751566/f71e2064-d78b-42df-affe-65f7f1081294)
+
 ## Solace Phase02 Keynet
 
 The goal of this repo is to create as complicated a network possible and test various scenerios:
