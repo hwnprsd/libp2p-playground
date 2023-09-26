@@ -53,6 +53,6 @@ The goal of this repo is to create as complicated a network possible and test va
 
 ## Metrics
 
-- [ ] Peer ID List
-- [ ] Squad IDs / Wallet Addresses
-- [ ] Stored Signatures per Squad
+- [x] Peer ID List
+- [x] Squad IDs / Wallet Addresses
+- [x] Stored Signatures per Squad
