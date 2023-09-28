@@ -6,11 +6,12 @@ import "google/protobuf/timestamp.proto";
 message SolaceTx {
 	string namespace = 1;
 	string walletAddr = 2;
-	string senderAddr = 3;
+	Sender sender = 3;
 	string toAddr = 4;
 	string tokenAddr = 5;
 	int32 value = 6;
 	repeated string signatures = 7;
+	string txSignature = 8;
 }
 
 message Signature {
@@ -18,4 +19,9 @@ message Signature {
 	google.protobuf.Timestamp timestamp = 2;
 	string signature = 3;
 	SolaceTx tx = 4;
+}
+
+message Sender {
+	string addr = 1;
+	int32 nonce = 2; 
 }
