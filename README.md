@@ -1,4 +1,3 @@
-
 ![image](https://github.com/solace-labs/keynet/assets/103751566/f71e2064-d78b-42df-affe-65f7f1081294)
 
 ## Solace Phase02 Keynet
@@ -31,7 +30,7 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Mock smart-contract which has the state of peers + wallets under management
 - [x] Plan for Node / Network restarts (SaveData caching)
 - [ ] DKG should be done as and when the network is inititalized. DKG should be incrementally done as and when new wallets come under management
-- [ ] Signing Verification should take place, with the SC data as the source of truth (till Phase03)
+- [x] Signing Verification should take place, with the SC data as the source of truth (till Phase03)
 - [x] Specify the ethereum transaction format for the Transaction Wrapper
 - [x] Unwrap, Verify and Sign
 - [x] Signatures and metadata should be stored by individual nodes on their respective DBs (Squad level DBs)
@@ -40,22 +39,38 @@ The goal of this repo is to create as complicated a network possible and test va
 
 - [x] Define how the Rules look like
 - [x] Interface for Declaring Rules
-
 - [x] Define how a tx looks like
 - [x] Interface for checking if a Tx fits the rules
-
 - [x] Transaction Parser module - Interface
 - [x] Rules Parser Format
 - [x] Rules / Transaction Enforcer
 
 ## Rules
 
-- [x] Sender Address based Rule
-  - [x] Sender => Max <Token, Value>
-  - [x] Store spend data
+- [x] Spend Cap
+- [x] Sender => Max <Token, Value>
+- [x] Store spend data
+- [ ] Goup wise Spend limits
+
+- [ ] Sender Groups
+
+- [ ] Recepient Based Rules
+- [ ] Groups are Allowed to send tokens to certain recepients
+
+- [ ] Static way to generate signatures
+- [ ] Handle multiple signatures with the same TX signature - Use Nonce?
+- [ ] Sender based Nonce management
 
 ## Metrics
 
 - [x] Peer ID List
 - [x] Squad IDs / Wallet Addresses
 - [x] Stored Signatures per Squad
+
+- [ ] Fetching sigantures based on Tx ID
+
+## Smart Contract Wallet Integration
+
+- [ ] Use external RPCs to check for SCW Owners
+- [ ] Accepts New Rules for wallets, only from Owners
+- [ ] Get signatures based on Tx IDs
