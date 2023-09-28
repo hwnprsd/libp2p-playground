@@ -61,3 +61,7 @@ func increment(valueBytes []byte) error {
 	}
 	return nil
 }
+
+func (s *Squad) getSenderNonce() int {
+	return 0
+}
