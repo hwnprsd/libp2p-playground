@@ -38,8 +38,10 @@ func (s *Squad) HashSolaceTx(tx *proto.SolaceTx) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return append([]byte(TX_PREFIX), b...), nil
+	return append([]byte(TX_PREFIX), []byte(tx.WalletAddr), b...), nil
 }
+
+func (s *Squad) ParseSolaceTxHash(hash []byte)
 
 func verifySignature(message []byte, sig []byte, sender string) error {
 	messageHash := accounts.TextHash(message)

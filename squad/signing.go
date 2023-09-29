@@ -108,44 +108,6 @@ func (s *Squad) cleanupSigning() {
 	s.sigParty = nil
 }
 
-func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.SolaceTx) {
-	key, err := s.HashSolaceTx(tx)
-	if err != nil {
-		log.Println("error marshalling tx", err)
-		s.cleanupSigning()
-		return
-	}
-
-	keyHex := hexutil.Encode(key)
-
-	val := &proto.Signature{
-		Signature: hex.EncodeToString(data.Signature),
-		Timestamp: timestamppb.Now(),
-		Id:        keyHex,
-		Tx:        tx,
-	}
-
-	valB, err := protob.Marshal(val)
-	if err != nil {
-		log.Println("Error marshalling signature value")
-	}
-
-	err = s.db.Set(key, valB)
-
-	if err != nil {
-		log.Println("Error setting signature")
-	} else {
-		log.Println("Sig Saved")
-		log.Println(hex.EncodeToString(data.Signature))
-	}
-
-	index := s.getDbIndex()
-	_ = s.db.Set(index.Bytes(), valB)
-	_ = s.updateIndex()
-
-	s.cleanupSigning()
-}
-
 func (s *Squad) GetSig(key []byte) ([]byte, error) {
 	return s.db.Get(key)
 }
@@ -238,4 +200,46 @@ func (s *Squad) handleSigningMessage(message tss.Message, tx *proto.SolaceTx) {
 		}
 		s.SendTo(*toPeerId, common.SIGNING_PROTOCOL, outMsg)
 	}
+}
+
+func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.SolaceTx) {
+	key, err := s.HashSolaceTx(tx)
+	if err != nil {
+		log.Println("error marshalling tx", err)
+		s.cleanupSigning()
+		return
+	}
+
+	keyHex := hexutil.Encode(key)
+
+	val := &proto.Signature{
+		Signature: hex.EncodeToString(data.Signature),
+		Timestamp: timestamppb.Now(),
+		Id:        keyHex,
+		Tx:        tx,
+	}
+
+	valB, err := protob.Marshal(val)
+	if err != nil {
+		log.Println("Error marshalling signature value")
+	}
+
+	err = s.db.Set(key, valB)
+
+	if err != nil {
+		log.Println("Error setting signature")
+	} else {
+		log.Println("Sig Saved")
+		log.Println(hex.EncodeToString(data.Signature))
+	}
+
+	index := s.getDbIndex()
+	_ = s.db.Set(index.Bytes(), valB)
+	_ = s.updateIndex()
+
+	s.cleanupSigning()
+}
+
+func (s *Squad) GetSignature() {
+
 }
