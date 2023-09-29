@@ -57,9 +57,9 @@ The goal of this repo is to create as complicated a network possible and test va
 - [ ] Recepient Based Rules
 - [ ] Groups are Allowed to send tokens to certain recepients
 
-- [ ] Static way to generate transaction hashes
-- [ ] Handle multiple signatures with the same TX signature - Use Nonce!
-- [ ] Sender based Nonce management
+- [x] Static way to generate transaction hashes
+- [x] Handle multiple signatures with the same TX signature - Use Nonce!
+- [x] Sender based Nonce management
 
 ## Metrics
 
@@ -67,7 +67,7 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Squad IDs / Wallet Addresses
 - [x] Stored Signatures per Squad
 
-- [ ] Fetching sigantures based on Tx ID
+- [x] Fetching sigantures based on Tx ID
 
 ## Smart Contract Wallet Integration
 
