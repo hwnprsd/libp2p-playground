@@ -80,7 +80,7 @@ func (s *Squad) validateTx(tx *proto.SolaceTx) error {
 
 	var rule *proto.SpendingCap
 	for _, r := range ruleBook.SpendingCap {
-		if r.Sender == tx.GetSenderAddr() && r.TokenAddress == tx.GetToAddr() {
+		if r.Sender == tx.Sender.GetAddr() && r.TokenAddress == tx.GetToAddr() {
 			rule = r
 		}
 	}

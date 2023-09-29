@@ -14,6 +14,11 @@ message SolaceTx {
 	string txSignature = 8;
 }
 
+message Sender {
+	string addr = 1;
+	int32 nonce = 2; 
+}
+
 message Signature {
 	string id = 1;
 	google.protobuf.Timestamp timestamp = 2;
@@ -21,7 +26,3 @@ message Signature {
 	SolaceTx tx = 4;
 }
 
-message Sender {
-	string addr = 1;
-	int32 nonce = 2; 
-}

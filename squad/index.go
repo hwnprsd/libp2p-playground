@@ -26,6 +26,39 @@ func IndexFromInt(val int) index {
 
 const db_index_key = "DB_INDEX"
 
+func (idx index) increment() error {
+	if len(idx) != 4 {
+		return fmt.Errorf("byte slice length must be 4 for int32")
+	}
+
+	carry := uint16(1)
+	for i := 0; i < 4; i++ {
+		sum := uint16(idx[i]) + carry
+		idx[i] = uint8(sum & 0xFF)
+		carry = sum >> 8
+	}
+	return nil
+}
+
+func (s *Squad) getCurrentNonce(senderAddr string) index {
+	data, err := s.db.Get([]byte("NONCE_" + senderAddr))
+	if err != nil {
+		log.Println("Error getting sender nonce", err)
+		return []byte{0, 0, 0, 0}
+	}
+	err = index(data).increment()
+	if err != nil {
+		log.Println("Error incrementing sender nonce", err)
+		return []byte{0, 0, 0, 0}
+	}
+	return data
+}
+
+func (s *Squad) updateSenderNonce(senderAddr string) error {
+	senderNonce := s.getCurrentNonce(senderAddr)
+	return s.db.Set([]byte("NONCE_"+senderAddr), senderNonce)
+}
+
 func (s *Squad) getDbIndex() index {
 	indexB, err := s.db.Get([]byte(db_index_key))
 	if err != nil {
@@ -40,28 +73,10 @@ func (s *Squad) getDbIndex() index {
 
 func (s *Squad) updateIndex() error {
 	index := s.getDbIndex()
-	err := increment(index)
+	err := index.increment()
 	if err != nil {
 		log.Println("err incrementing index")
 		return err
 	}
 	return s.db.Set([]byte(db_index_key), index)
-}
-
-func increment(valueBytes []byte) error {
-	if len(valueBytes) != 4 {
-		return fmt.Errorf("byte slice length must be 4 for int32")
-	}
-
-	carry := uint16(1)
-	for i := 0; i < 4; i++ {
-		sum := uint16(valueBytes[i]) + carry
-		valueBytes[i] = uint8(sum & 0xFF)
-		carry = sum >> 8
-	}
-	return nil
-}
-
-func (s *Squad) getSenderNonce() int {
-	return 0
 }

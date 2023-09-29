@@ -148,7 +148,9 @@ func (n *Node) HandleCreateRule(ctx context.Context, req *proto.CreateRuleData) 
 
 func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) (*proto.TransactionResponse, error) {
 	log.Println("Handling Sign Request")
+	log.Printf("%#v \n", req)
 	walletAddressEth := ethcommon.HexToAddress(req.WalletAddr)
+
 	if walletAddressEth.Bytes() == nil {
 		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [1]"}, nil
 	}
@@ -158,6 +160,10 @@ func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) 
 		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
 	}
 
+	err := n.squad[walletAddr].ValidateSolaceTx(req)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+	}
 	n.squad[walletAddr].InitSigning(req)
 
 	return &proto.TransactionResponse{Success: true, Msg: "Sign Inited"}, nil
