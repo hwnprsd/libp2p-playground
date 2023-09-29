@@ -31,13 +31,13 @@ func ReadStream(stream network.Stream) (walletAddr []byte, data []byte, err erro
 		return nil, nil, err
 	}
 
-	return buf[:60], buf[60:], nil
+	return buf[:20], buf[20:], nil
 }
 
 func WriteStream(stream network.Stream, data []byte, walletAddr []byte) error {
 	lenBuf := make([]byte, 4)
 
-	walletAddrPadded := make([]byte, 60)
+	walletAddrPadded := make([]byte, 20)
 	copy(walletAddrPadded, walletAddr)
 
 	finalData := append(walletAddrPadded, data...)

@@ -12,6 +12,7 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/solace-labs/skeyn/common"
 	proto "github.com/solace-labs/skeyn/proto"
+	"github.com/solace-labs/skeyn/squad"
 	protob "google.golang.org/protobuf/proto"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -98,18 +99,16 @@ func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*
 }
 
 func (n *Node) HandleSigRetrieval(ctx context.Context, req *proto.SignatureRetrieval) (*proto.TransactionResponse, error) {
-	walletAddressEth := ethcommon.HexToAddress(req.WalletAddress)
-	if walletAddressEth.Bytes() == nil {
-		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [1]"}, nil
+	hash, walletAddr, err := squad.ParseSolaceTxHash(req.TxHash)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: "Invalid TxHash"}, nil
 	}
-
-	walletAddr := common.NewEthWalletAddress(walletAddressEth)
 
 	if _, exists := n.squad[walletAddr]; !exists {
 		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
 	}
 
-	sig, err := n.squad[walletAddr].GetSig([]byte(req.Key))
+	sig, err := n.squad[walletAddr].GetStoredData(hash)
 	if err != nil {
 
 		return &proto.TransactionResponse{Success: false, Msg: "Error fetching squad sig"}, err
@@ -172,7 +171,7 @@ func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) 
 		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
 
-	hash, err := n.squad[walletAddr].HashSolaceTx(req)
+	hash, err := squad.HashSolaceTx(req)
 	if err != nil {
 		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}

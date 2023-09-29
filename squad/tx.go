@@ -7,9 +7,12 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
 	protob "google.golang.org/protobuf/proto"
 )
+
+const TX_PREFIX = "\x19SOLACE_TX\n"
 
 func (s *Squad) ValidateSolaceTx(tx *proto.SolaceTx) error {
 	// 1. Verify tx signature
@@ -33,15 +36,30 @@ func (s *Squad) ValidateSolaceTx(tx *proto.SolaceTx) error {
 	return nil
 }
 
-func (s *Squad) HashSolaceTx(tx *proto.SolaceTx) ([]byte, error) {
+func HashSolaceTx(tx *proto.SolaceTx) ([]byte, error) {
 	b, err := protob.Marshal(tx)
 	if err != nil {
 		return nil, err
 	}
-	return append([]byte(TX_PREFIX), []byte(tx.WalletAddr), b...), nil
+	walletAddr, err := common.NewEthWalletAddressString(tx.WalletAddr)
+	if err != nil {
+		return nil, err
+	}
+	var hash []byte
+	hash = append(hash, []byte(TX_PREFIX)...)
+	hash = append(hash, walletAddr.Bytes()...)
+	hash = append(hash, b...)
+	return hash, nil
 }
 
-func (s *Squad) ParseSolaceTxHash(hash []byte)
+func ParseSolaceTxHash(hashString string) ([]byte, common.WalletAddress, error) {
+	hash, err := hexutil.Decode(hashString)
+	if err != nil {
+		return nil, common.WalletAddress(""), err
+	}
+	walletAddrB := hash[len(TX_PREFIX) : len(TX_PREFIX)+20]
+	return hash, common.NewWalletAddress(walletAddrB), nil
+}
 
 func verifySignature(message []byte, sig []byte, sender string) error {
 	messageHash := accounts.TextHash(message)

@@ -62,8 +62,7 @@ message TransactionResponse {
 }
 
 message SignatureRetrieval {
-	string walletAddress = 1;
-	string key = 2;
+	string txHash = 1; 
 }
 
 message CreateRuleData {

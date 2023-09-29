@@ -80,27 +80,6 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	return true, errChan
 }
 
-func (s *Squad) handleKeygenEnd(data keygen.LocalPartySaveData) {
-	saveData := NewStoredSaveData(&data)
-	saveDataB := saveData.Bytes()
-	log.Println("Keygen Complete")
-	err := s.db.Set([]byte(s.LP_SAVE_DATA_KEY()), saveDataB)
-	if err != nil {
-		panic(err)
-	}
-	log.Println("Save Data Stored")
-
-	// x, y := data.ECDSAPub.X(), data.ECDSAPub.Y()
-	// pk := ecdsa.PublicKey{
-	// 	Curve: tss.EC(),
-	// 	X:     x,
-	// 	Y:     y,
-	// }
-	// pubKeyBytes := elliptic.Marshal(pk.Curve, pk.X, pk.Y)
-	// n.logger.Sugar().Infof("Session - %s", sAddress)
-	// n.logger.Sugar().Infof("Public Key - %s", hex.EncodeToString(pubKeyBytes))
-}
-
 func (s *Squad) UpdateKeygenParty(
 	ctx context.Context,
 	message UpdateMessage,
@@ -141,4 +120,25 @@ func (s *Squad) handleKeygenMessage(message tss.Message) {
 		}
 		s.SendTo(*toPeerId, common.DKG_PROTOCOL, outMsg)
 	}
+}
+
+func (s *Squad) handleKeygenEnd(data keygen.LocalPartySaveData) {
+	saveData := NewStoredSaveData(&data)
+	saveDataB := saveData.Bytes()
+	log.Println("Keygen Complete")
+	err := s.db.Set([]byte(s.LP_SAVE_DATA_KEY()), saveDataB)
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Save Data Stored")
+
+	// x, y := data.ECDSAPub.X(), data.ECDSAPub.Y()
+	// pk := ecdsa.PublicKey{
+	// 	Curve: tss.EC(),
+	// 	X:     x,
+	// 	Y:     y,
+	// }
+	// pubKeyBytes := elliptic.Marshal(pk.Curve, pk.X, pk.Y)
+	// n.logger.Sugar().Infof("Session - %s", sAddress)
+	// n.logger.Sugar().Infof("Public Key - %s", hex.EncodeToString(pubKeyBytes))
 }

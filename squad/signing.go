@@ -18,8 +18,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const TX_PREFIX = "SOLACETX####"
-
 func (s *Squad) InitSigning(tx *proto.SolaceTx) (chan error, error) {
 	s.rwLock.Lock()
 	defer s.rwLock.Unlock()
@@ -108,7 +106,7 @@ func (s *Squad) cleanupSigning() {
 	s.sigParty = nil
 }
 
-func (s *Squad) GetSig(key []byte) ([]byte, error) {
+func (s *Squad) GetStoredData(key []byte) ([]byte, error) {
 	return s.db.Get(key)
 }
 
@@ -203,7 +201,7 @@ func (s *Squad) handleSigningMessage(message tss.Message, tx *proto.SolaceTx) {
 }
 
 func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.SolaceTx) {
-	key, err := s.HashSolaceTx(tx)
+	key, err := HashSolaceTx(tx)
 	if err != nil {
 		log.Println("error marshalling tx", err)
 		s.cleanupSigning()
@@ -238,8 +236,4 @@ func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.Solace
 	_ = s.updateIndex()
 
 	s.cleanupSigning()
-}
-
-func (s *Squad) GetSignature() {
-
 }
