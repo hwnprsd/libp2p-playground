@@ -57,8 +57,8 @@ The goal of this repo is to create as complicated a network possible and test va
 - [ ] Recepient Based Rules
 - [ ] Groups are Allowed to send tokens to certain recepients
 
-- [ ] Static way to generate signatures
-- [ ] Handle multiple signatures with the same TX signature - Use Nonce?
+- [ ] Static way to generate transaction hashes
+- [ ] Handle multiple signatures with the same TX signature - Use Nonce!
 - [ ] Sender based Nonce management
 
 ## Metrics

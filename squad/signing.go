@@ -9,6 +9,7 @@ import (
 	tsscommon "github.com/bnb-chain/tss-lib/v2/common"
 	"github.com/bnb-chain/tss-lib/v2/ecdsa/signing"
 	"github.com/bnb-chain/tss-lib/v2/tss"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
@@ -19,7 +20,7 @@ import (
 
 const TX_PREFIX = "SOLACETX####"
 
-func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
+func (s *Squad) InitSigning(tx *proto.SolaceTx) (chan error, error) {
 	s.rwLock.Lock()
 	defer s.rwLock.Unlock()
 
@@ -27,7 +28,7 @@ func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
 
 	shouldContinueInit, errChan := s.setupSigningParty(ctx, tx)
 	if !shouldContinueInit {
-		return nil
+		return nil, nil
 	}
 
 	// Only run it if not already inited
@@ -35,7 +36,7 @@ func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
 	if err != nil {
 		log.Println("error validating Tx", err)
 		s.cleanupSigning()
-		return nil
+		return nil, err
 	}
 
 	go func() {
@@ -45,7 +46,7 @@ func (s *Squad) InitSigning(tx *proto.SolaceTx) chan error {
 			log.Println("SIG_ERROR", err)
 		}
 	}()
-	return errChan
+	return errChan, nil
 }
 
 func (s *Squad) setupSigningParty(ctx context.Context, tx *proto.SolaceTx) (shouldContinueInit bool, errChan chan error) {
@@ -108,20 +109,19 @@ func (s *Squad) cleanupSigning() {
 }
 
 func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.SolaceTx) {
-	txB, err := protob.Marshal(tx)
+	key, err := s.HashSolaceTx(tx)
 	if err != nil {
 		log.Println("error marshalling tx", err)
 		s.cleanupSigning()
 		return
 	}
 
-	txHash := hex.EncodeToString(txB)
-	key := []byte(TX_PREFIX + txHash)
+	keyHex := hexutil.Encode(key)
 
 	val := &proto.Signature{
 		Signature: hex.EncodeToString(data.Signature),
 		Timestamp: timestamppb.Now(),
-		Id:        txHash,
+		Id:        keyHex,
 		Tx:        tx,
 	}
 
@@ -198,7 +198,8 @@ func (s *Squad) UpdateSigningParty(
 	}
 
 	message.GetPayload()
-	errChan := s.InitSigning(tx)
+	// Ignoring the error
+	errChan, _ := s.InitSigning(tx)
 	fromPartyId := s.GetSortedPartyID(&peerId)
 
 	_, err2 := (*s.sigParty).UpdateFromBytes(message.GetWireMessage(), fromPartyId, message.GetIsBroadcast())

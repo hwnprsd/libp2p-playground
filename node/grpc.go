@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/solace-labs/skeyn/common"
 	proto "github.com/solace-labs/skeyn/proto"
@@ -164,9 +165,20 @@ func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) 
 	if err != nil {
 		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
-	n.squad[walletAddr].InitSigning(req)
 
-	return &proto.TransactionResponse{Success: true, Msg: "Sign Inited"}, nil
+	_, err = n.squad[walletAddr].InitSigning(req)
+
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+	}
+
+	hash, err := n.squad[walletAddr].HashSolaceTx(req)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+	}
+	txHash := hexutil.Encode(hash)
+
+	return &proto.TransactionResponse{Success: true, Msg: txHash}, nil
 }
 
 func (n Node) HandleMetricsQuery(ctx context.Context, req *proto.Empty) (*proto.MetricsResponse, error) {

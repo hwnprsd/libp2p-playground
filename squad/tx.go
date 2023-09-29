@@ -8,11 +8,12 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/solace-labs/skeyn/proto"
+	protob "google.golang.org/protobuf/proto"
 )
 
 func (s *Squad) ValidateSolaceTx(tx *proto.SolaceTx) error {
 	// 1. Verify tx signature
-	message := tx.Namespace + tx.WalletAddr + tx.Sender.Addr + tx.ToAddr + tx.TokenAddr + fmt.Sprintf("%d", tx.Value)
+	message := tx.Namespace + tx.WalletAddr + tx.Sender.Addr + tx.ToAddr + tx.TokenAddr + fmt.Sprintf("%d", tx.Value) + fmt.Sprintf("%d", tx.Sender.Nonce)
 	for _, sig := range tx.Signatures {
 		message += sig
 	}
@@ -30,6 +31,14 @@ func (s *Squad) ValidateSolaceTx(tx *proto.SolaceTx) error {
 
 	// 2. Verify sender nonce
 	return nil
+}
+
+func (s *Squad) HashSolaceTx(tx *proto.SolaceTx) ([]byte, error) {
+	b, err := protob.Marshal(tx)
+	if err != nil {
+		return nil, err
+	}
+	return append([]byte(TX_PREFIX), b...), nil
 }
 
 func verifySignature(message []byte, sig []byte, sender string) error {
