@@ -165,17 +165,17 @@ func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) 
 		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
 
-	_, err = n.squad[walletAddr].InitSigning(req)
-
-	if err != nil {
-		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
-	}
-
 	hash, err := squad.HashSolaceTx(req)
 	if err != nil {
 		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
 	txHash := hexutil.Encode(hash)
+
+	_, err = n.squad[walletAddr].InitSigning(req)
+
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+	}
 
 	return &proto.TransactionResponse{Success: true, Msg: txHash}, nil
 }

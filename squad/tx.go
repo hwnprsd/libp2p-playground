@@ -1,6 +1,7 @@
 package squad
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -9,7 +10,6 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
-	protob "google.golang.org/protobuf/proto"
 )
 
 const TX_PREFIX = "\x19SOLACE_TX\n"
@@ -33,22 +33,27 @@ func (s *Squad) ValidateSolaceTx(tx *proto.SolaceTx) error {
 	}
 
 	// 2. Verify sender nonce
+	nonce := s.getCurrentNonce()
+	if nonce.Int() != int(tx.Sender.Nonce) {
+		return fmt.Errorf("Incorrect Nonce")
+	}
+
 	return nil
 }
 
 func HashSolaceTx(tx *proto.SolaceTx) ([]byte, error) {
-	b, err := protob.Marshal(tx)
-	if err != nil {
-		return nil, err
-	}
 	walletAddr, err := common.NewEthWalletAddressString(tx.WalletAddr)
 	if err != nil {
 		return nil, err
 	}
+
+	nonceBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(nonceBytes, uint32(tx.Sender.Nonce))
+
 	var hash []byte
 	hash = append(hash, []byte(TX_PREFIX)...)
 	hash = append(hash, walletAddr.Bytes()...)
-	hash = append(hash, b...)
+	hash = append(hash, nonceBytes...)
 	return hash, nil
 }
 

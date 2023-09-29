@@ -36,6 +36,7 @@ func (s *Squad) InitSigning(tx *proto.SolaceTx) (chan error, error) {
 		s.cleanupSigning()
 		return nil, err
 	}
+	s.updateNonce()
 
 	go func() {
 		err := (*s.sigParty).Start()
@@ -200,6 +201,7 @@ func (s *Squad) handleSigningMessage(message tss.Message, tx *proto.SolaceTx) {
 	}
 }
 
+// TODO: More efficient way to store signatures
 func (s *Squad) handleSessionEnd(data *tsscommon.SignatureData, tx *proto.SolaceTx) {
 	key, err := HashSolaceTx(tx)
 	if err != nil {

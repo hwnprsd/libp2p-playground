@@ -52,10 +52,21 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	outChan := make(chan tss.Message)
 	endChan := make(chan keygen.LocalPartySaveData)
 
-	preParams, err := keygen.GeneratePreParams(3 * time.Minute)
-	if err != nil {
-		log.Println("Error generating pre-params")
-		panic(err)
+	var preParams *keygen.LocalPreParams
+
+	// Check if localparty save params exists
+	saveDataB, err := s.db.Get([]byte(s.LP_SAVE_DATA_KEY()))
+	if err != nil || saveDataB == nil {
+		pp, err := keygen.GeneratePreParams(3 * time.Minute)
+		if err != nil {
+			log.Println("Error generating pre-params")
+			panic(err)
+		}
+		preParams = pp
+		// continue init
+	} else {
+		saveData := StoredSaveDataFromBytes(saveDataB)
+		preParams = &saveData.LocalPreParams
 	}
 
 	party := keygen.NewLocalParty(params, outChan, endChan, *preParams)

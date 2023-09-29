@@ -40,11 +40,14 @@ func (idx index) increment() error {
 	return nil
 }
 
-func (s *Squad) getCurrentNonce(senderAddr string) index {
-	data, err := s.db.Get([]byte("NONCE_" + senderAddr))
+func (s *Squad) getCurrentNonce() index {
+	data, err := s.db.Get([]byte("NONCE"))
 	if err != nil {
 		log.Println("Error getting sender nonce", err)
 		return []byte{0, 0, 0, 0}
+	}
+	if data == nil {
+		data = []byte{0, 0, 0, 0}
 	}
 	err = index(data).increment()
 	if err != nil {
@@ -54,9 +57,9 @@ func (s *Squad) getCurrentNonce(senderAddr string) index {
 	return data
 }
 
-func (s *Squad) updateSenderNonce(senderAddr string) error {
-	senderNonce := s.getCurrentNonce(senderAddr)
-	return s.db.Set([]byte("NONCE_"+senderAddr), senderNonce)
+func (s *Squad) updateNonce() error {
+	senderNonce := s.getCurrentNonce()
+	return s.db.Set([]byte("NONCE"), senderNonce)
 }
 
 func (s *Squad) getDbIndex() index {
