@@ -41,6 +41,13 @@ service TransactionService {
 		};
 	}
 
+	rpc HandleNonceRequest(WalletAddrWrapper) returns (TransactionResponse) {
+		option (google.api.http) = {
+			post: "/v1/nonce"
+			body: "*"
+		};
+	}
+
 }
 
 // This will be for external Http / GRPC Calls
@@ -78,6 +85,10 @@ message MetricsResponse {
 message Squad {
 	string walletAddr = 1;
 	repeated Signature signatures = 2; 
+}
+
+message WalletAddrWrapper {
+	string walletAddr = 1;
 }
 
 message Empty {}

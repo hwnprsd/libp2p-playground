@@ -40,7 +40,7 @@ func (idx index) increment() error {
 	return nil
 }
 
-func (s *Squad) getCurrentNonce() index {
+func (s *Squad) GetCurrentNonce() index {
 	data, err := s.db.Get([]byte("NONCE"))
 	if err != nil {
 		log.Println("Error getting sender nonce", err)
@@ -58,7 +58,7 @@ func (s *Squad) getCurrentNonce() index {
 }
 
 func (s *Squad) updateNonce() error {
-	senderNonce := s.getCurrentNonce()
+	senderNonce := s.GetCurrentNonce()
 	return s.db.Set([]byte("NONCE"), senderNonce)
 }
 

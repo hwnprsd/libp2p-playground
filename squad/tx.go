@@ -33,7 +33,7 @@ func (s *Squad) ValidateSolaceTx(tx *proto.SolaceTx) error {
 	}
 
 	// 2. Verify sender nonce
-	nonce := s.getCurrentNonce()
+	nonce := s.GetCurrentNonce()
 	if nonce.Int() != int(tx.Sender.Nonce) {
 		return fmt.Errorf("Incorrect Nonce")
 	}

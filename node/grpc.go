@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -119,19 +120,17 @@ func (n *Node) HandleSigRetrieval(ctx context.Context, req *proto.SignatureRetri
 // Create a rule for a smart-contract wallet
 func (n *Node) HandleCreateRule(ctx context.Context, req *proto.CreateRuleData) (*proto.TransactionResponse, error) {
 	// TOOD: Check if the message is coming from the owner of the SCW
-	walletAddressEth := ethcommon.HexToAddress(req.WalletAddress)
-	if walletAddressEth.Bytes() == nil {
-		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [1]"}, nil
+	walletAddr, err := n.verifyWalletAddr(req.WalletAddress)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
-
-	walletAddr := common.NewEthWalletAddress(walletAddressEth)
 
 	if _, exists := n.squad[walletAddr]; !exists {
 		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
 	}
 
 	sqd := n.squad[walletAddr]
-	err := sqd.CreateRule(req)
+	err = sqd.CreateRule(req)
 	if err != nil {
 		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
@@ -147,20 +146,12 @@ func (n *Node) HandleCreateRule(ctx context.Context, req *proto.CreateRuleData) 
 }
 
 func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) (*proto.TransactionResponse, error) {
-	log.Println("Handling Sign Request")
-	log.Printf("%#v \n", req)
-	walletAddressEth := ethcommon.HexToAddress(req.WalletAddr)
-
-	if walletAddressEth.Bytes() == nil {
-		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [1]"}, nil
+	walletAddr, err := n.verifyWalletAddr(req.WalletAddr)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
 
-	walletAddr := common.NewEthWalletAddress(walletAddressEth)
-	if _, exists := n.squad[walletAddr]; !exists {
-		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
-	}
-
-	err := n.squad[walletAddr].ValidateSolaceTx(req)
+	err = n.squad[walletAddr].ValidateSolaceTx(req)
 	if err != nil {
 		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
 	}
@@ -196,4 +187,14 @@ func (n Node) HandleMetricsQuery(ctx context.Context, req *proto.Empty) (*proto.
 		resp.Squads = append(resp.Squads, s)
 	}
 	return resp, nil
+}
+
+func (n *Node) HandleNonceRequest(ctx context.Context, req *proto.WalletAddrWrapper) (*proto.TransactionResponse, error) {
+	walletAddr, err := n.verifyWalletAddr(req.WalletAddr)
+	if err != nil {
+		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+	}
+
+	nonce := n.squad[walletAddr].GetCurrentNonce()
+	return &proto.TransactionResponse{Success: true, Msg: fmt.Sprintf("%d", nonce.Int())}, nil
 }
