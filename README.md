@@ -73,4 +73,3 @@ The goal of this repo is to create as complicated a network possible and test va
 
 - [ ] Use external RPCs to check for SCW Owners
 - [ ] Accepts New Rules for wallets, only from Owners
-- [ ] Get signatures based on Tx IDs

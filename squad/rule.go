@@ -92,7 +92,7 @@ func (s *Squad) validateTx(tx *proto.SolaceTx) error {
 	val := int32(tx.GetValue())
 
 	if rule.CurrentValue+val > rule.Cap {
-		return fmt.Errorf("Transaction exceeds the cap rule val = %d, curr = %d, cap = %d", val, rule.CurrentValue+val, rule.Cap)
+		return fmt.Errorf("Transaction exceeds the cap rule val = %d, curr = %d, cap = %d", val, rule.CurrentValue, rule.Cap)
 	}
 
 	// At this point, we are all good - I think

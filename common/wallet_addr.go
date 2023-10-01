@@ -16,6 +16,11 @@ func (addr WalletAddress) Bytes() []byte {
 func (addr WalletAddress) String() string {
 	return hexutil.Encode(addr.Bytes())
 }
+
+func ZeroAddr() WalletAddress {
+	return WalletAddress("0x00")
+}
+
 func NewWalletAddress(addr []byte) WalletAddress {
 	return WalletAddress(hexutil.Encode(addr))
 }
