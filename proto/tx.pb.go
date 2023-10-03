@@ -26,7 +26,7 @@ type SolaceTx struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Namespace   string   `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Namespace   string   `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"` // This will contian the ChainID
 	WalletAddr  string   `protobuf:"bytes,2,opt,name=walletAddr,proto3" json:"walletAddr,omitempty"`
 	Sender      *Sender  `protobuf:"bytes,3,opt,name=sender,proto3" json:"sender,omitempty"`
 	ToAddr      string   `protobuf:"bytes,4,opt,name=toAddr,proto3" json:"toAddr,omitempty"`
