@@ -39,7 +39,7 @@ var (
 	networkCid  = cid.NewCidV1(cid.Raw, mHash)
 )
 
-type SquadM map[common.WalletAddress]*squad.Squad
+type SquadM map[common.Addr]*squad.Squad
 
 type Node struct {
 	host *host.Host

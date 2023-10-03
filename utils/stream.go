@@ -32,7 +32,7 @@ func ReadStream(stream network.Stream) (walletAddr []byte, data []byte, err erro
 		return nil, nil, err
 	}
 
-	return buf[:common.WalletAddrLen], buf[common.WalletAddrLen:], nil
+	return buf[:common.AddrLen], buf[common.AddrLen:], nil
 }
 
 func WriteStream(stream network.Stream, data []byte, walletAddr []byte) error {

@@ -57,10 +57,10 @@ func HashSolaceTx(tx *proto.SolaceTx) ([]byte, error) {
 	return hash, nil
 }
 
-func ParseSolaceTxHash(hashString string) ([]byte, common.WalletAddress, error) {
+func ParseSolaceTxHash(hashString string) ([]byte, common.Addr, error) {
 	hash, err := hexutil.Decode(hashString)
 	if err != nil {
-		return nil, common.WalletAddress(""), err
+		return nil, common.Addr(""), err
 	}
 	walletAddrB := hash[len(TX_PREFIX) : len(TX_PREFIX)+20]
 	return hash, common.NewWalletAddress(walletAddrB), nil

@@ -22,7 +22,7 @@ type Squad struct {
 	sc            smartcontract.NetworkState
 	ctx           context.Context
 	writeCh       chan<- common.OutgoingMessage
-	walletAddress common.WalletAddress
+	walletAddress common.Addr
 
 	peerStore peerstore.Peerstore
 

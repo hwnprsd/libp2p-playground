@@ -9,7 +9,7 @@ import (
 )
 
 // Create the squad if not exists
-func (n *Node) SetupSquad(ctx context.Context, walletAddress common.WalletAddress) {
+func (n *Node) SetupSquad(ctx context.Context, walletAddress common.Addr) {
 	_, exists := n.squad[walletAddress]
 
 	if exists {

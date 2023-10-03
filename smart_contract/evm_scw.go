@@ -7,6 +7,7 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/solace-labs/skeyn/common"
+	"github.com/solace-labs/skeyn/proto"
 	"github.com/solace-labs/skeyn/smart_contract/solace_account"
 )
 
@@ -19,14 +20,22 @@ const (
 
 type EvmScw struct {
 	chainID    int
-	walletAddr common.WalletAddress
+	walletAddr common.Addr
 }
 
-func NewEvmScw(chainId int, walletAddr common.WalletAddress) EvmScw {
+func NewEvmScw(chainId int, walletAddr common.Addr) EvmScw {
 	return EvmScw{chainId, walletAddr}
 }
 
-func (e EvmScw) IsValid(addr common.WalletAddress) (bool, error) {
+func (e EvmScw) validateSetup(sig []byte) (bool, error) {
+	return true, nil
+}
+
+func (e EvmScw) validateRuleDeletion(rule *proto.Rule, sig []byte, sender common.Addr) (bool, error) {
+	return true, nil
+}
+
+func (e EvmScw) validateRuleAddition(rule *proto.Rule, sig []byte, sender common.Addr) (bool, error) {
 	rpcUrl, exists := RPCUrls[e.chainID]
 
 	if !exists {
@@ -50,7 +59,7 @@ func (e EvmScw) IsValid(addr common.WalletAddress) (bool, error) {
 		return false, fmt.Errorf(errFetchingOwnerFromScw, err)
 	}
 
-	res := ownerAddr.Cmp(ethcommon.BytesToAddress(addr.Bytes()))
+	// ECRecover the sig and verify that the owner signed it
 
 	return res == 0, nil
 }

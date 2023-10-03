@@ -5,36 +5,36 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-const WalletAddrLen = 20
+const AddrLen = 20
 
 // Keeping this as a string, as it's used as a Key in [SquadMap]
-type WalletAddress string
+type Addr string
 
-func (addr WalletAddress) Bytes() []byte {
+func (addr Addr) Bytes() []byte {
 	return hexutil.MustDecode(string(addr))
 }
 
-func (addr WalletAddress) String() string {
+func (addr Addr) String() string {
 	return hexutil.Encode(addr.Bytes())
 }
 
-func ZeroAddr() WalletAddress {
-	return WalletAddress("0x00")
+func ZeroAddr() Addr {
+	return Addr("0x00")
 }
 
-func NewWalletAddress(addr []byte) WalletAddress {
-	return WalletAddress(hexutil.Encode(addr))
+func NewWalletAddress(addr []byte) Addr {
+	return Addr(hexutil.Encode(addr))
 }
 
-func NewEthWalletAddress(addr common.Address) WalletAddress {
+func NewEthWalletAddress(addr common.Address) Addr {
 	// TODO: For now, store the hex string - later, implement chain ID, etc
-	return WalletAddress(hexutil.Encode(addr.Bytes()))
+	return Addr(hexutil.Encode(addr.Bytes()))
 }
 
-func NewEthWalletAddressString(addr string) (WalletAddress, error) {
+func NewEthWalletAddressString(addr string) (Addr, error) {
 	b, err := hexutil.Decode(addr)
 	if err != nil {
-		return WalletAddress(""), err
+		return Addr(""), err
 	}
-	return WalletAddress(hexutil.Encode(b)), nil
+	return Addr(hexutil.Encode(b)), nil
 }

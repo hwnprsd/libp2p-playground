@@ -7,10 +7,10 @@ import (
 	"github.com/solace-labs/skeyn/common"
 )
 
-func (n *Node) verifyWalletAddr(walletAddrString string) (common.WalletAddress, error) {
+func (n *Node) verifyWalletAddr(walletAddrString string) (common.Addr, error) {
 	walletAddressEth := ethcommon.HexToAddress(walletAddrString)
 	if walletAddressEth.Bytes() == nil {
-		return common.WalletAddress(""), fmt.Errorf("[1] Invalid wallet address - %s", walletAddrString)
+		return common.Addr(""), fmt.Errorf("[1] Invalid wallet address - %s", walletAddrString)
 	}
 
 	walletAddr := common.NewEthWalletAddress(walletAddressEth)

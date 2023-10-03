@@ -74,7 +74,7 @@ func (n *Node) setupMessageRecieverHandler() {
 }
 
 // Message Export Hub for the node
-func (n *Node) setupOutgoingMessageHandler(ctx context.Context, walletAddress common.WalletAddress) chan common.OutgoingMessage {
+func (n *Node) setupOutgoingMessageHandler(ctx context.Context, walletAddress common.Addr) chan common.OutgoingMessage {
 	ch := make(chan common.OutgoingMessage)
 	go func() {
 		for {
