@@ -58,6 +58,4 @@ func (e EvmScw) validateRuleAddition(rule *proto.Rule, sig []byte, sender common
 	if err != nil {
 		return false, fmt.Errorf(errFetchingOwnerFromScw, err)
 	}
-
-	return res == 0, nil
 }
