@@ -29,7 +29,7 @@ The goal of this repo is to create as complicated a network possible and test va
 
 - [x] Mock smart-contract which has the state of peers + wallets under management
 - [x] Plan for Node / Network restarts (SaveData caching)
-- [ ] DKG should be done as and when the network is inititalized. DKG should be incrementally done as and when new wallets come under management
+- [x] DKG should be done as and when the network is inititalized. DKG should be incrementally done as and when new wallets come under management
 - [x] Signing Verification should take place, with the SC data as the source of truth (till Phase03)
 - [x] Specify the ethereum transaction format for the Transaction Wrapper
 - [x] Unwrap, Verify and Sign
@@ -46,6 +46,8 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Rules / Transaction Enforcer
 
 ## Rules
+
+- [ ] Multichain Support
 
 - [x] Spend Cap
 - [x] Sender => Max <Token, Value>
@@ -73,3 +75,4 @@ The goal of this repo is to create as complicated a network possible and test va
 
 - [ ] Use external RPCs to check for SCW Owners
 - [ ] Accepts New Rules for wallets, only from Owners
+- [ ] Request to get the public key after DKG

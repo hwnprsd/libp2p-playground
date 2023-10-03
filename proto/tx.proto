@@ -4,7 +4,7 @@ option go_package = "./proto";
 import "google/protobuf/timestamp.proto";
 
 message SolaceTx {
-	string namespace = 1;
+	string namespace = 1; // This will contian the ChainID
 	string walletAddr = 2;
 	Sender sender = 3;
 	string toAddr = 4;

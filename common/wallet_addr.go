@@ -7,6 +7,7 @@ import (
 
 const WalletAddrLen = 20
 
+// Keeping this as a string, as it's used as a Key in [SquadMap]
 type WalletAddress string
 
 func (addr WalletAddress) Bytes() []byte {

@@ -12,3 +12,5 @@ func Test_FetchOwner(t *testing.T) {
 	ownerAddr, _ := evmScw.GetOwner()
 	t.Log(ownerAddr.String())
 }
+
+// TODO: Add more test cases

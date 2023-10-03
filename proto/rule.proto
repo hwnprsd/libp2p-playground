@@ -6,6 +6,7 @@ message RuleBook {
 	string ownerAddress = 2;
 	repeated Rule rules = 3; 
 	repeated SpendingCap spendingCap = 4;
+	string namespace = 4;
 }
 
 // Consider for base token transfers

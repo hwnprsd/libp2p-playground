@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/solace-labs/skeyn/common"
 )
 
 const (
@@ -31,7 +32,7 @@ func ReadStream(stream network.Stream) (walletAddr []byte, data []byte, err erro
 		return nil, nil, err
 	}
 
-	return buf[:20], buf[20:], nil
+	return buf[:common.WalletAddrLen], buf[common.WalletAddrLen:], nil
 }
 
 func WriteStream(stream network.Stream, data []byte, walletAddr []byte) error {

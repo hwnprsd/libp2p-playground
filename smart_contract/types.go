@@ -1,7 +1,7 @@
 package smartcontract
 
-import "github.com/solace-labs/skeyn/common"
+import "github.com/solace-labs/skeyn/proto"
 
 type SmartContractWallet interface {
-	GetOwner() (common.WalletAddress, error)
+	validateRule(proto.Rule) (bool, error)
 }
