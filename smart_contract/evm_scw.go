@@ -59,7 +59,5 @@ func (e EvmScw) validateRuleAddition(rule *proto.Rule, sig []byte, sender common
 		return false, fmt.Errorf(errFetchingOwnerFromScw, err)
 	}
 
-	// ECRecover the sig and verify that the owner signed it
-
 	return res == 0, nil
 }
