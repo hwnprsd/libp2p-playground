@@ -28,8 +28,14 @@ message SpendingCap {
 }
 
 message AccessControlRule {
-	ValueRangeClause valueRangeClause = 1;
-	TimeWindowClause timeWindowClause = 2;
+	string walletAddr = 1;
+
+	// Auto generated ID which takes into consideration the
+	// primary keys involved in identifyng the rules - such that rules don't overlap 
+	string generatedId = 2; 
+
+	ValueRangeClause valueRangeClause = 2;
+	TimeWindowClause timeWindowClause = 3;
 	EscalationClause escalationClause = 3;
 	SenderGroup senderGroup = 4;
 	string recipientAddress = 5;
@@ -37,18 +43,21 @@ message AccessControlRule {
 }
 
 message SenderGroup {
-
+	string name = 1;
+	repeated string addresses = 2;
 }
 
 message ValueRangeClause {
-
+	uint64 minVal = 1; 
+	uint64 maxVal = 2;
 }
 
 message TimeWindowClause {
-
+	// TBD
 }
 
 message EscalationClause {
-
+	repeated string addresses = 1; 
+	repeated string operators = 2;
 }
 
