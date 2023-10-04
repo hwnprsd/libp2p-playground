@@ -6,6 +6,7 @@ message RuleBook {
 	string ownerAddress = 2;
 	repeated Rule rules = 3; 
 	repeated SpendingCap spendingCap = 4;
+	string namespace = 4;
 }
 
 // Consider for base token transfers
@@ -15,7 +16,7 @@ message Rule {
 	string fromAddress = 2;
 	string toAddress = 3;
 	int32 targetValue = 4;
-	string namespace = 5;
+
 }
 
 message SpendingCap {
@@ -25,3 +26,29 @@ message SpendingCap {
 	int32 currentValue = 3;
 	int32 cap = 4;
 }
+
+message AccessControlRule {
+	ValueRangeClause valueRangeClause = 1;
+	TimeWindowClause timeWindowClause = 2;
+	EscalationClause escalationClause = 3;
+	SenderGroup senderGroup = 4;
+	string recipientAddress = 5;
+	string tokenAddress = 6;
+}
+
+message SenderGroup {
+
+}
+
+message ValueRangeClause {
+
+}
+
+message TimeWindowClause {
+
+}
+
+message EscalationClause {
+
+}
+

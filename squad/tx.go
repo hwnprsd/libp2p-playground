@@ -4,12 +4,10 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
+	"github.com/solace-labs/skeyn/utils"
 )
 
 const TX_PREFIX = "\x19SOLACE_TX\n"
@@ -27,7 +25,12 @@ func (s *Squad) ValidateSolaceTx(tx *proto.SolaceTx) error {
 		return err
 	}
 
-	err = verifySignature(messageBytes, sig, tx.Sender.Addr)
+	senderAddr, err := common.NewEthWalletAddressString(tx.Sender.Addr)
+	if err != nil {
+		return err
+	}
+
+	err = utils.VerifyEthSignature(messageBytes, sig, senderAddr)
 	if err != nil {
 		return err
 	}
@@ -64,29 +67,4 @@ func ParseSolaceTxHash(hashString string) ([]byte, common.Addr, error) {
 	}
 	walletAddrB := hash[len(TX_PREFIX) : len(TX_PREFIX)+20]
 	return hash, common.NewWalletAddress(walletAddrB), nil
-}
-
-func verifySignature(message []byte, sig []byte, sender string) error {
-	messageHash := accounts.TextHash(message)
-	if sig[ethcrypto.RecoveryIDOffset] == 27 || sig[ethcrypto.RecoveryIDOffset] == 28 {
-		sig[ethcrypto.RecoveryIDOffset] -= 27 // Transform yellow paper V from 27/28 to 0/1
-	}
-
-	pubKeyRaw, err := ethcrypto.Ecrecover(messageHash, sig)
-	if err != nil {
-		fmt.Printf("[1] Error recovering pubkey")
-		fmt.Println(err)
-		return err
-	}
-
-	pubKey, _ := ethcrypto.UnmarshalPubkey(pubKeyRaw)
-	recovered := ethcrypto.PubkeyToAddress(*pubKey)
-	expected := ethcommon.HexToAddress(sender)
-
-	fmt.Printf("E: %s / R %s", expected, recovered)
-	if expected == recovered {
-		return nil
-	} else {
-		return fmt.Errorf("Signature verification failed")
-	}
 }

@@ -2,6 +2,7 @@ package proto
 
 import (
 	"encoding/hex"
+	"fmt"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -17,4 +18,8 @@ func PayloadFromID(ID string) []byte {
 		return nil
 	}
 	return protoBytes
+}
+
+func (sc *SpendingCap) Bytes() []byte {
+	return []byte(fmt.Sprintf("%s%s%s%d", sc.Namespace, sc.Sender, sc.TokenAddress, sc.Cap))
 }

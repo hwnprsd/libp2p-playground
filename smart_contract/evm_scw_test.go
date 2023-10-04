@@ -4,13 +4,19 @@ import (
 	"testing"
 
 	"github.com/solace-labs/skeyn/common"
+	"github.com/stretchr/testify/require"
 )
 
-func Test_FetchOwner(t *testing.T) {
-	addr, _ := common.NewEthWalletAddressString("0xdcE2a3609308163633bd9F30d6259B1785ed88B6")
-	evmScw := NewEvmScw(80001, addr)
-	ownerAddr, _ := evmScw.GetOwner()
-	t.Log(ownerAddr.String())
+func Test_FetchOwnerEVM(t *testing.T) {
+	addr, _ := common.NewEthWalletAddressString("0x6eDbBd37699FE0e7F24E7956E95D1630d9DF7971")
+	evmScw := NewEvmScw(4337, addr)
+	ownerAddr, err := evmScw.GetOwner()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	expectedAddr, _ := common.NewEthWalletAddressString("0x5F4Aef7d8AcaA89140aB928539183985958699F2")
+	require.Equal(t, ownerAddr, expectedAddr)
 }
 
 // TODO: Add more test cases
