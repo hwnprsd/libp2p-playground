@@ -6,7 +6,6 @@ message RuleBook {
 	string ownerAddress = 2;
 	repeated Rule rules = 3; 
 	repeated SpendingCap spendingCap = 4;
-	string namespace = 4;
 }
 
 // Consider for base token transfers
@@ -34,12 +33,14 @@ message AccessControlRule {
 	// primary keys involved in identifyng the rules - such that rules don't overlap 
 	string generatedId = 2; 
 
-	ValueRangeClause valueRangeClause = 2;
-	TimeWindowClause timeWindowClause = 3;
-	EscalationClause escalationClause = 3;
-	SenderGroup senderGroup = 4;
-	string recipientAddress = 5;
-	string tokenAddress = 6;
+	string namespace = 3;
+
+	ValueRangeClause valueRangeClause = 4;
+	TimeWindowClause timeWindowClause = 5;
+	EscalationClause escalationClause = 6;
+	SenderGroup senderGroup = 7;
+	string recipientAddress = 8;
+	string tokenAddress = 9;
 }
 
 message SenderGroup {
