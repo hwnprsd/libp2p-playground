@@ -4,8 +4,7 @@ option go_package = "./proto";
 message RuleBook {
 	string walletAddress = 1;
 	string ownerAddress = 2;
-	repeated Rule rules = 3; 
-	repeated SpendingCap spendingCap = 4;
+	repeated AccessControlRule rules = 3; 
 }
 
 // Consider for base token transfers

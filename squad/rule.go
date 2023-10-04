@@ -26,15 +26,13 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	// TODO: Some sort of validation such that the rules don't clash
 
 	if data == nil {
-		ruleBook = proto.RuleBook{WalletAddress: rule.WalletAddress, Rules: make([]*proto.Rule, 0)}
+		ruleBook = proto.RuleBook{WalletAddress: rule.WalletAddress, Rules: make([]*proto.AccessControlRule, 0)}
 	} else {
 		if err := protob.Unmarshal(data, &ruleBook); err != nil {
 			log.Println("Error unmarshalling rulebook")
 			return err
 		}
 	}
-
-	ruleBook.SpendingCap = append(ruleBook.SpendingCap, rule.SpendingCap)
 
 	if err != nil {
 		log.Println("Error marshalling rule to bytes")
@@ -51,7 +49,10 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 		return fmt.Errorf("Error writing rulebook back to DB - %e", err)
 	}
 
-	log.Printf("New Spending Cap Set - \nCurr = %d\nCap = %d\n", rule.SpendingCap.CurrentValue, rule.SpendingCap.Cap)
+	// Verify the signature
+	// Create ID
+	// Check if a similar rule exists
+	// Add the rule to the rulebook
 
 	return nil
 }
@@ -79,11 +80,8 @@ func (s *Squad) validateTx(tx *proto.SolaceTx) error {
 	}
 
 	var rule *proto.SpendingCap
-	for _, r := range ruleBook.SpendingCap {
-		if r.Sender == tx.Sender.GetAddr() && r.TokenAddress == tx.GetToAddr() {
-			rule = r
-		}
-	}
+
+	// TODO: Apply Access Control Checks
 
 	if rule == nil {
 		return fmt.Errorf("No rule exists for the given sender")

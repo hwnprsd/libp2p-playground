@@ -74,7 +74,8 @@ message SignatureRetrieval {
 
 message CreateRuleData {
 	string walletAddress = 1;
-	SpendingCap spendingCap = 2;
+	AccessControlRule rule = 2;
+	string signature = 3;
 }
 
 message MetricsResponse {
