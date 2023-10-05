@@ -32,6 +32,10 @@ func HexToPubkey(h string) (crypto.PubKey, error) {
 	return crypto.UnmarshalECDSAPublicKey(b)
 }
 
+func HexToBytes(h string) []byte {
+	return ethcommon.FromHex(h)
+}
+
 func VerifyEthSignature(message []byte, sig []byte, sender common.Addr) error {
 	// ETH_SIGNED_MESSAGE
 	messageHash := accounts.TextHash(message)

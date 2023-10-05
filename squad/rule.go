@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
+	"github.com/solace-labs/skeyn/utils"
 	protob "google.golang.org/protobuf/proto"
 )
 
@@ -34,6 +36,24 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 		}
 	}
 
+	// Check if the signature is valid
+	sig := utils.HexToBytes(rule.Signature)
+
+	// Do not need to pass a sender for most cases
+	isValid, err := s.scw.ValidateRuleAddition(rule.Rule.Bytes(), sig, common.ZeroAddr())
+	if err != nil {
+		log.Println("Error validating Rule - ", err.Error())
+		return err
+	}
+
+	if !isValid {
+		log.Println("Rule is invalid")
+		return fmt.Errorf("Invalid Rule Submitted")
+	}
+
+	// TODO: Check if the rule collides with any existing rules
+	ruleBook.Rules = append(ruleBook.Rules, rule.Rule)
+
 	if err != nil {
 		log.Println("Error marshalling rule to bytes")
 		return err
@@ -48,11 +68,6 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	if err != nil {
 		return fmt.Errorf("Error writing rulebook back to DB - %e", err)
 	}
-
-	// Verify the signature
-	// Create ID
-	// Check if a similar rule exists
-	// Add the rule to the rulebook
 
 	return nil
 }
@@ -81,8 +96,6 @@ func (s *Squad) validateTx(tx *proto.SolaceTx) error {
 
 	var rule *proto.SpendingCap
 
-	// TODO: Apply Access Control Checks
-
 	if rule == nil {
 		return fmt.Errorf("No rule exists for the given sender")
 	}
@@ -107,5 +120,4 @@ func (s *Squad) validateTx(tx *proto.SolaceTx) error {
 	}
 
 	return nil
-
 }

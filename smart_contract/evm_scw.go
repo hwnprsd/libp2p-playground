@@ -19,6 +19,11 @@ const (
 	errInvalidSignature     = "Invalid Signature - Not signed by SCW Owner // Owner - %s // %e"
 )
 
+var (
+	addr, _    = common.NewEthWalletAddressString("0x6eDbBd37699FE0e7F24E7956E95D1630d9DF7971")
+	TestEvmScw = NewEvmScw(4337, addr)
+)
+
 type EvmScw struct {
 	chainID    int
 	walletAddr common.Addr
@@ -59,16 +64,16 @@ func (e EvmScw) GetOwner() (common.Addr, error) {
 	return common.NewEthWalletAddress(ownerAddr), nil
 }
 
-func (e EvmScw) validateSetup(sig []byte) (bool, error) {
+func (e EvmScw) ValidateSetup(sig []byte) (bool, error) {
 	return true, nil
 }
 
-func (e EvmScw) validateRuleDeletion(rule []byte, sig []byte, sender common.Addr) (bool, error) {
+func (e EvmScw) ValidateRuleDeletion(rule []byte, sig []byte, sender common.Addr) (bool, error) {
 	return true, nil
 }
 
 // Verify that the role addition has been authorized by the owner of SCW
-func (e EvmScw) validateRuleAddition(rule []byte, sig []byte, sender common.Addr) (bool, error) {
+func (e EvmScw) ValidateRuleAddition(rule []byte, sig []byte, sender common.Addr) (bool, error) {
 	ownerAddr, err := e.GetOwner()
 	if err != nil {
 		return false, err

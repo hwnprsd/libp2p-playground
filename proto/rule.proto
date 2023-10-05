@@ -58,6 +58,6 @@ message TimeWindowClause {
 
 message EscalationClause {
 	repeated string addresses = 1; 
-	repeated string operators = 2;
+	string logic = 2; // ([0] OR [1]) AND ([2] OR [3])
 }
 

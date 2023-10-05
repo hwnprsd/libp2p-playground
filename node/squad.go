@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/solace-labs/skeyn/common"
+	smartcontract "github.com/solace-labs/skeyn/smart_contract"
 	"github.com/solace-labs/skeyn/squad"
 )
 
@@ -28,6 +29,8 @@ func (n *Node) SetupSquad(ctx context.Context, walletAddress common.Addr) {
 		walletAddress.String(),
 		outChan,
 		peerStore,
+		// TODO:  Replace this with actual SCWs deployed on networks
+		smartcontract.TestEvmScw,
 	)
 
 	n.squad[walletAddress] = sqd

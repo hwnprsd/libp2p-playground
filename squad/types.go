@@ -23,6 +23,7 @@ type Squad struct {
 	ctx           context.Context
 	writeCh       chan<- common.OutgoingMessage
 	walletAddress common.Addr
+	scw           smartcontract.SmartContractWallet
 
 	peerStore peerstore.Peerstore
 
@@ -57,9 +58,11 @@ func (s *Squad) Init(ctx context.Context,
 	squadId string,
 	writeCh chan<- common.OutgoingMessage,
 	peerStore peerstore.Peerstore,
+	scw smartcontract.SmartContractWallet,
 ) {
 	s.sc = sc
 	s.ID = squadId
+	s.scw = scw
 
 	peers, err := s.sc.GetPeerList(squadId)
 	if err != nil {

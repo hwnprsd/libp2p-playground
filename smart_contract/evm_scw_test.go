@@ -8,9 +8,7 @@ import (
 )
 
 func Test_FetchOwnerEVM(t *testing.T) {
-	addr, _ := common.NewEthWalletAddressString("0x6eDbBd37699FE0e7F24E7956E95D1630d9DF7971")
-	evmScw := NewEvmScw(4337, addr)
-	ownerAddr, err := evmScw.GetOwner()
+	ownerAddr, err := TestEvmScw.GetOwner()
 	if err != nil {
 		t.Error(err)
 		return

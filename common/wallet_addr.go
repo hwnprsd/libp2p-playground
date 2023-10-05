@@ -22,6 +22,18 @@ func ZeroAddr() Addr {
 	return Addr("0x00")
 }
 
+func NewEthAddrSlice(addresses []string) ([]Addr, error) {
+	addrs := make([]Addr, 0)
+	for _, addr := range addresses {
+		_addr, err := NewEthWalletAddressString(addr)
+		addrs = append(addrs, _addr)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return addrs, nil
+}
+
 func NewWalletAddress(addr []byte) Addr {
 	return Addr(hexutil.Encode(addr))
 }
