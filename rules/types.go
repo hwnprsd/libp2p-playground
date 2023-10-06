@@ -39,10 +39,13 @@ func GetRulesForSender(tx *proto.SolaceTx, sender common.Addr, rules []*proto.Ac
 	}
 
 	if len(both) != 0 {
+		// Apply Rule
 		// Check if the tx fits the rules
 	} else if len(rcl) != 0 && len(vrcl) == 0 {
+		// Apply Rule
 		// Check if the tx fit the Recipient based rules
 	} else if len(rcl) == 0 && len(vrcl) != 0 {
+		// Apply Rule
 		// Check if the tx fit the value range based rules
 	} else {
 		// No rules apply - Reject Tx

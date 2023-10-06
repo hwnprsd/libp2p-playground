@@ -14,7 +14,6 @@ message Rule {
 	string fromAddress = 2;
 	string toAddress = 3;
 	int32 targetValue = 4;
-
 }
 
 message SpendingCap {
