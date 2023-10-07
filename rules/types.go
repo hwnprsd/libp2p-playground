@@ -10,8 +10,9 @@ import (
 )
 
 type ACL []*proto.AccessControlRule
+type ACLRule *proto.AccessControlRule
 
-func GetRulesForSender(tx *proto.SolaceTx, sender common.Addr, rules ACL) (ACL, ACL, ACL) {
+func GetRulesForSender(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 	// This funciton assumes that the sender is already verified
 	senderRules := utils.Filter(rules, func(rule *proto.AccessControlRule) bool {
 		addrs, err := common.NewEthAddrSlice(rule.SenderGroup.Addresses)
@@ -45,18 +46,59 @@ func GetRulesForSender(tx *proto.SolaceTx, sender common.Addr, rules ACL) (ACL, 
 	}
 
 	if len(both) != 0 {
-		// Apply Rule
-		// Check if the tx fits the rules
+		isValid, rule := applyValueRangeClause(both, tx)
+		if isValid {
+			isValid = applyEscalationClause(rule, tx)
+			if !isValid {
+				return fmt.Errorf("Tx Passes Value Range but Fails Escalation")
+			}
+			return nil
+		}
+		return fmt.Errorf("Tx Fails Value Range Clause")
 	} else if len(rcl) != 0 && len(vrcl) == 0 {
-		// Apply Rule
-		// Check if the tx fit the Recipient based rules
+		// Only apply the last rule
+		rule := rcl[len(rcl)-1]
+		if rule.EscalationClause == nil {
+			// Rule passes
+			return nil
+		} else {
+			isValid := applyEscalationClause(rule, tx)
+			if !isValid {
+				return fmt.Errorf("Tx violates escalation rules")
+			}
+		}
+		// Check if escalation rules exist
 	} else if len(rcl) == 0 && len(vrcl) != 0 {
-		// Apply Rule
-		// Check if the tx fit the value range based rules
+		// go over every rule which is applicable, and check if the value matches
+		isValid, _ := applyValueRangeClause(vrcl, tx)
+		if !isValid {
+			return fmt.Errorf("Value Range Violation")
+		} else {
+			return nil
+		}
 	} else {
-		// No rules apply - Reject Tx
+		return fmt.Errorf("No rules set for <Token-Sender> combo")
 	}
 
 	// Check which sender rule applies
-	return rcl, vrcl, both
+	return nil
+}
+
+func applyValueRangeClause(rules ACL, tx *proto.SolaceTx) (bool, ACLRule) {
+	for _, rule := range rules {
+		if tx.Value < int32(rule.ValueRangeClause.MaxVal) && tx.Value > int32(rule.ValueRangeClause.MinVal) {
+			if rule.EscalationClause != nil {
+				isPassing := applyEscalationClause(rule, tx)
+				fmt.Println("TX Violates Escalation Rules")
+				return isPassing, rule
+			} else {
+				return true, rule
+			}
+		}
+	}
+	return false, nil
+}
+
+func applyEscalationClause(rules ACLRule, tx *proto.SolaceTx) bool {
+	return true
 }
