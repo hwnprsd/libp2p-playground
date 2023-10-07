@@ -51,7 +51,7 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 		}
 	}
 
-	fmt.Println("RC LEN", len(rcl), len(vrcl), len(both))
+	// fmt.Println("RC LEN", len(rcl), len(vrcl), len(both))
 
 	if len(both) != 0 {
 		rule := both[len(both)-1]
@@ -101,16 +101,23 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 		// If the recipient matches, apply the rule otherwise
 		rclRule := rcl[len(rcl)-1]
 		isValid := false
+		err := errRecipientAddrViolation
 		if rclRule.RecipientAddress == tx.ToAddr {
 			isValid = applyEscalationClause(rclRule, tx)
+			if !isValid {
+				err = errEscalationViolation
+			}
 		} else {
-			isValid, rule := applyValueRangeClause(vrcl, tx)
+			_isValid, rule := applyValueRangeClause(vrcl, tx)
+			isValid = _isValid
 			if isValid {
 				isValid = applyEscalationClause(rule, tx)
+			} else {
+				err = errEscalationViolation
 			}
 		}
 		if !isValid {
-			return fmt.Errorf(errRecipientAddrViolation)
+			return fmt.Errorf(err)
 		}
 	} else {
 		return fmt.Errorf(errNoRulesFound, sender.String(), tx.TokenAddr)

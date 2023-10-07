@@ -76,9 +76,15 @@ func Test_RecipientClause(t *testing.T) {
 	require.NotNil(t, err)
 }
 
-func Test_Wildcard(t *testing.T) {
+func Test_Multirules(t *testing.T) {
 	tx1.TokenAddr = "TOKEN_ADDR_2"
 	tx1.ToAddr = "TO_ADDR_2"
+	tx1.Value = 99999
 	err := ValidateTx(tx1, ethSenderAddr, rules)
+	require.Nil(t, err)
+
+	tx1.ToAddr = walletAddr
+	tx1.Value = 120
+	err = ValidateTx(tx1, ethSenderAddr, rules)
 	require.Nil(t, err)
 }
