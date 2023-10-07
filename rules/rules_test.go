@@ -24,13 +24,15 @@ var (
 		Name:      "TEST_SENDER_2",
 	}
 
-	valueRangeRule = []*proto.AccessControlRule{
+	rules = []*proto.AccessControlRule{
 		{
 			WalletAddr:       walletAddr,
 			TokenAddress:     "TOKEN_ADDR_1",
 			RecipientAddress: "TO_ADDR_1",
 			SenderGroup:      senderGroup1,
 		}, {
+			// Value Range Clause for sender - To anyone
+			// Value Range should contribute to Spending Caps??
 			WalletAddr:   walletAddr,
 			SenderGroup:  senderGroup1,
 			TokenAddress: "TOKEN_ADDR_2",
@@ -38,30 +40,45 @@ var (
 				MinVal: 100,
 				MaxVal: 1000,
 			},
+		}, {
+			// No clauses - to a specific addr
+			WalletAddr:       walletAddr,
+			SenderGroup:      senderGroup1,
+			TokenAddress:     "TOKEN_ADDR_2",
+			RecipientAddress: "TO_ADDR_2",
 		},
 	}
 )
 
+var (
+	tx1 = &proto.SolaceTx{
+		Sender:     &proto.Sender{Addr: sender1, Nonce: 0},
+		ToAddr:     "TO_ADDR_1",
+		TokenAddr:  "TOKEN_ADDR_1",
+		Value:      101,
+		WalletAddr: walletAddr,
+	}
+	ethSenderAddr, err = common.NewEthWalletAddressString(sender1)
+)
+
 func Test_RecipientClause(t *testing.T) {
-	var (
-		tx1 = &proto.SolaceTx{
-			Sender:     &proto.Sender{Addr: sender1, Nonce: 0},
-			ToAddr:     "TO_ADDR_1",
-			TokenAddr:  "TOKEN_ADDR_1",
-			Value:      101,
-			WalletAddr: walletAddr,
-		}
-	)
 	// Test Rule 1
-	ethSenderAddr, err := common.NewEthWalletAddressString(sender1)
 	require.Nil(t, err)
 
-	err = ValidateTx(tx1, ethSenderAddr, valueRangeRule)
+	err = ValidateTx(tx1, ethSenderAddr, rules)
 	require.Nil(t, err)
 
 	// Test Rule 2
 	tx1.ToAddr = walletAddr
 
-	err = ValidateTx(tx1, ethSenderAddr, valueRangeRule)
+	err = ValidateTx(tx1, ethSenderAddr, rules)
+	t.Log(err)
 	require.NotNil(t, err)
+}
+
+func Test_Wildcard(t *testing.T) {
+	tx1.TokenAddr = "TOKEN_ADDR_2"
+	tx1.ToAddr = "TO_ADDR_2"
+	err := ValidateTx(tx1, ethSenderAddr, rules)
+	require.Nil(t, err)
 }

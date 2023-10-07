@@ -17,14 +17,13 @@ const (
 	errRecipientAddrViolation = "[1] Tx Recipient Addr doesn't match the rule"
 	errValueRangeViolation    = "[2] Tx Value doesn't match the Value Range in the rule"
 	errEscalationViolation    = "[3] Tx doesn't have signatures required by the Escalation Clause"
-	errNoRulesFound           = "[4] No rules found for <Sender, Token> combo"
+	errNoRulesFound           = "[4] No rules found for <Sender, Token> <%s, %s>"
 )
 
 func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 	// This funciton assumes that the sender is already verified
 	senderRules := utils.Filter(rules, func(rule *proto.AccessControlRule) bool {
 		addrs, err := common.NewEthAddrSlice(rule.SenderGroup.Addresses)
-		fmt.Printf("%#v\n", addrs)
 		if err != nil {
 			return false
 		}
@@ -38,7 +37,6 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 		both = make(ACL, 0)
 	)
 
-	fmt.Printf("%#v\n", senderRules)
 	for _, rule := range senderRules {
 		if rule.TokenAddress != tx.TokenAddr {
 			continue
@@ -52,6 +50,8 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 			both = append(both, rule)
 		}
 	}
+
+	fmt.Println("RC LEN", len(rcl), len(vrcl), len(both))
 
 	if len(both) != 0 {
 		rule := both[len(both)-1]
@@ -71,6 +71,7 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 		return fmt.Errorf(errValueRangeViolation)
 
 	} else if len(rcl) != 0 && len(vrcl) == 0 {
+		fmt.Println("Applying RCL")
 		// Only apply the last rule
 		rule := rcl[len(rcl)-1]
 		if rule.RecipientAddress != RECIPIENT_WILD_CARD && rule.RecipientAddress != tx.ToAddr {
@@ -95,8 +96,24 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 		} else {
 			return nil
 		}
+	} else if len(rcl) != 0 && len(vrcl) != 0 {
+		// A condition where both a value range clause is valid && recipient
+		// If the recipient matches, apply the rule otherwise
+		rclRule := rcl[len(rcl)-1]
+		isValid := false
+		if rclRule.RecipientAddress == tx.ToAddr {
+			isValid = applyEscalationClause(rclRule, tx)
+		} else {
+			isValid, rule := applyValueRangeClause(vrcl, tx)
+			if isValid {
+				isValid = applyEscalationClause(rule, tx)
+			}
+		}
+		if !isValid {
+			return fmt.Errorf(errRecipientAddrViolation)
+		}
 	} else {
-		return fmt.Errorf(errNoRulesFound)
+		return fmt.Errorf(errNoRulesFound, sender.String(), tx.TokenAddr)
 	}
 
 	// Check which sender rule applies
@@ -118,6 +135,6 @@ func applyValueRangeClause(rules ACL, tx *proto.SolaceTx) (bool, ACLRule) {
 	return false, nil
 }
 
-func applyEscalationClause(rules ACLRule, tx *proto.SolaceTx) bool {
+func applyEscalationClause(rule ACLRule, tx *proto.SolaceTx) bool {
 	return true
 }
