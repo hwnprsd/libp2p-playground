@@ -30,7 +30,7 @@ func (sc *SpendingCap) Bytes() []byte {
 func (rule *AccessControlRule) Ids() []string {
 	ids := make([]string, 0)
 	isRecipientLocked := rule.RecipientAddress != ""
-	isValueRangeLocked := rule.ValueRangeClause.MaxVal != 0 && rule.ValueRangeClause.MinVal != 0
+	isValueRangeLocked := rule.ValueRangeClause != nil && rule.ValueRangeClause.MaxVal != 0 && rule.ValueRangeClause.MinVal != 0
 	if isRecipientLocked {
 		for _, sender := range rule.SenderGroup.Addresses {
 			var id []byte

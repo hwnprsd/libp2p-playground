@@ -15,7 +15,7 @@ func (addr Addr) Bytes() []byte {
 }
 
 func (addr Addr) String() string {
-	return hexutil.Encode(addr.Bytes())
+	return string(addr)
 }
 
 func ZeroAddr() Addr {
@@ -28,7 +28,7 @@ func NewEthAddrSlice(addresses []string) ([]Addr, error) {
 		_addr, err := NewEthWalletAddressString(addr)
 		addrs = append(addrs, _addr)
 		if err != nil {
-			return nil, err
+			continue
 		}
 	}
 	return addrs, nil
