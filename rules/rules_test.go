@@ -5,6 +5,7 @@ import (
 
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -23,15 +24,7 @@ var (
 		Name:      "TEST_SENDER_2",
 	}
 
-	tx = &proto.SolaceTx{
-		Sender:     &proto.Sender{Addr: sender1, Nonce: 0},
-		ToAddr:     "TO_ADDR_1",
-		TokenAddr:  "TOKEN_ADDR_1",
-		Value:      101,
-		WalletAddr: walletAddr,
-	}
-
-	rules = []*proto.AccessControlRule{
+	valueRangeRule = []*proto.AccessControlRule{
 		{
 			WalletAddr:       walletAddr,
 			TokenAddress:     "TOKEN_ADDR_1",
@@ -49,15 +42,26 @@ var (
 	}
 )
 
-func Test_GetRules(t *testing.T) {
-	t.Log(rules[0].Ids())
+func Test_RecipientClause(t *testing.T) {
+	var (
+		tx1 = &proto.SolaceTx{
+			Sender:     &proto.Sender{Addr: sender1, Nonce: 0},
+			ToAddr:     "TO_ADDR_1",
+			TokenAddr:  "TOKEN_ADDR_1",
+			Value:      101,
+			WalletAddr: walletAddr,
+		}
+	)
+	// Test Rule 1
 	ethSenderAddr, err := common.NewEthWalletAddressString(sender1)
-	if err != nil {
-		t.Error(err)
-	}
-	t.Log("//", sender1, "//", ethSenderAddr.String())
-	err = GetRulesForSender(tx, ethSenderAddr, rules)
-	if err != nil {
-		t.Error(err)
-	}
+	require.Nil(t, err)
+
+	err = ValidateTx(tx1, ethSenderAddr, valueRangeRule)
+	require.Nil(t, err)
+
+	// Test Rule 2
+	tx1.ToAddr = walletAddr
+
+	err = ValidateTx(tx1, ethSenderAddr, valueRangeRule)
+	require.NotNil(t, err)
 }

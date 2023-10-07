@@ -12,7 +12,15 @@ import (
 type ACL []*proto.AccessControlRule
 type ACLRule *proto.AccessControlRule
 
-func GetRulesForSender(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
+const (
+	RECIPIENT_WILD_CARD       = "0x00"
+	errRecipientAddrViolation = "[1] Tx Recipient Addr doesn't match the rule"
+	errValueRangeViolation    = "[2] Tx Value doesn't match the Value Range in the rule"
+	errEscalationViolation    = "[3] Tx doesn't have signatures required by the Escalation Clause"
+	errNoRulesFound           = "[4] No rules found for <Sender, Token> combo"
+)
+
+func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 	// This funciton assumes that the sender is already verified
 	senderRules := utils.Filter(rules, func(rule *proto.AccessControlRule) bool {
 		addrs, err := common.NewEthAddrSlice(rule.SenderGroup.Addresses)
@@ -46,25 +54,36 @@ func GetRulesForSender(tx *proto.SolaceTx, sender common.Addr, rules ACL) error 
 	}
 
 	if len(both) != 0 {
+		rule := both[len(both)-1]
+
+		if rule.RecipientAddress != RECIPIENT_WILD_CARD && rule.RecipientAddress != tx.ToAddr {
+			return fmt.Errorf(errRecipientAddrViolation)
+		}
+
 		isValid, rule := applyValueRangeClause(both, tx)
 		if isValid {
 			isValid = applyEscalationClause(rule, tx)
 			if !isValid {
-				return fmt.Errorf("Tx Passes Value Range but Fails Escalation")
+				return fmt.Errorf(errEscalationViolation)
 			}
 			return nil
 		}
-		return fmt.Errorf("Tx Fails Value Range Clause")
+		return fmt.Errorf(errValueRangeViolation)
+
 	} else if len(rcl) != 0 && len(vrcl) == 0 {
 		// Only apply the last rule
 		rule := rcl[len(rcl)-1]
+		if rule.RecipientAddress != RECIPIENT_WILD_CARD && rule.RecipientAddress != tx.ToAddr {
+			return fmt.Errorf(errRecipientAddrViolation)
+		}
+
 		if rule.EscalationClause == nil {
 			// Rule passes
 			return nil
 		} else {
 			isValid := applyEscalationClause(rule, tx)
 			if !isValid {
-				return fmt.Errorf("Tx violates escalation rules")
+				return fmt.Errorf(errEscalationViolation)
 			}
 		}
 		// Check if escalation rules exist
@@ -72,12 +91,12 @@ func GetRulesForSender(tx *proto.SolaceTx, sender common.Addr, rules ACL) error 
 		// go over every rule which is applicable, and check if the value matches
 		isValid, _ := applyValueRangeClause(vrcl, tx)
 		if !isValid {
-			return fmt.Errorf("Value Range Violation")
+			return fmt.Errorf(errValueRangeViolation)
 		} else {
 			return nil
 		}
 	} else {
-		return fmt.Errorf("No rules set for <Token-Sender> combo")
+		return fmt.Errorf(errNoRulesFound)
 	}
 
 	// Check which sender rule applies
@@ -89,7 +108,7 @@ func applyValueRangeClause(rules ACL, tx *proto.SolaceTx) (bool, ACLRule) {
 		if tx.Value < int32(rule.ValueRangeClause.MaxVal) && tx.Value > int32(rule.ValueRangeClause.MinVal) {
 			if rule.EscalationClause != nil {
 				isPassing := applyEscalationClause(rule, tx)
-				fmt.Println("TX Violates Escalation Rules")
+				fmt.Println(errEscalationViolation)
 				return isPassing, rule
 			} else {
 				return true, rule
