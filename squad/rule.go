@@ -15,6 +15,10 @@ func (s *Squad) RuleBookKey() string {
 	return "RULES_" + s.ID
 }
 
+func (s *Squad) SetSpendingCap() error {
+	return nil
+}
+
 func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	// TODO: VALIDATION
 	// TODO: Verify with the owner

@@ -33,7 +33,7 @@ message AccessControlRule {
 
 	// Auto generated ID which takes into consideration the
 	// primary keys involved in identifyng the rules - such that rules don't overlap 
-	string generatedId = 2; 
+	repeated string generatedIds = 2; 
 
 	string namespace = 3;
 
@@ -41,9 +41,9 @@ message AccessControlRule {
 	TimeWindowClause timeWindowClause = 5;
 	EscalationClause escalationClause = 6;
 	SenderGroup senderGroup = 7;
+
 	string recipientAddress = 8;
 	string tokenAddress = 9;
-
 }
 
 message SenderGroup {
