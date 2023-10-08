@@ -44,6 +44,8 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	// Check if the signature is valid
 	sig := utils.HexToBytes(rule.Signature)
 
+	// TODO: Check for collissions
+
 	// Do not need to pass a sender for most cases
 	isValid, err := s.scw.ValidateRuleAddition(rule.Rule.Bytes(), sig, common.ZeroAddr())
 	if err != nil {
