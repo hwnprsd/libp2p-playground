@@ -25,6 +25,7 @@ message SpendingCap {
 	string tokenAddress = 2;
 	int32 currentValue = 3;
 	google.protobuf.Timestamp lastUpdated = 4;
+	int32 cap = 5;
 }
 
 message AccessControlRule {

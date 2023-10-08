@@ -65,14 +65,13 @@ func Test_RecipientClause(t *testing.T) {
 	// Test Rule 1
 	require.Nil(t, err)
 
-	err = ValidateTx(tx1, ethSenderAddr, rules)
+	_, err = ValidateTx(tx1, ethSenderAddr, rules)
 	require.Nil(t, err)
 
 	// Test Rule 2
 	tx1.ToAddr = walletAddr
 
-	err = ValidateTx(tx1, ethSenderAddr, rules)
-	t.Log(err)
+	_, err = ValidateTx(tx1, ethSenderAddr, rules)
 	require.NotNil(t, err)
 }
 
@@ -80,11 +79,15 @@ func Test_Multirules(t *testing.T) {
 	tx1.TokenAddr = "TOKEN_ADDR_2"
 	tx1.ToAddr = "TO_ADDR_2"
 	tx1.Value = 99999
-	err := ValidateTx(tx1, ethSenderAddr, rules)
+	_, err := ValidateTx(tx1, ethSenderAddr, rules)
 	require.Nil(t, err)
 
 	tx1.ToAddr = walletAddr
 	tx1.Value = 120
-	err = ValidateTx(tx1, ethSenderAddr, rules)
+	_, err = ValidateTx(tx1, ethSenderAddr, rules)
 	require.Nil(t, err)
+
+	tx1.Value = 99999
+	_, err = ValidateTx(tx1, ethSenderAddr, rules)
+	require.NotNil(t, err)
 }

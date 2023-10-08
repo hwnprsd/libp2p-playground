@@ -20,7 +20,7 @@ const (
 	errNoRulesFound           = "[4] No rules found for <Sender, Token> <%s, %s>"
 )
 
-func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
+func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) (ACLRule, error) {
 	// This funciton assumes that the sender is already verified
 	senderRules := utils.Filter(rules, func(rule *proto.AccessControlRule) bool {
 		addrs, err := common.NewEthAddrSlice(rule.SenderGroup.Addresses)
@@ -57,74 +57,77 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) error {
 		rule := both[len(both)-1]
 
 		if rule.RecipientAddress != RECIPIENT_WILD_CARD && rule.RecipientAddress != tx.ToAddr {
-			return fmt.Errorf(errRecipientAddrViolation)
+			return nil, fmt.Errorf(errRecipientAddrViolation)
 		}
 
 		isValid, rule := applyValueRangeClause(both, tx)
 		if isValid {
 			isValid = applyEscalationClause(rule, tx)
 			if !isValid {
-				return fmt.Errorf(errEscalationViolation)
+				return nil, fmt.Errorf(errEscalationViolation)
 			}
-			return nil
+			return rule, nil
 		}
-		return fmt.Errorf(errValueRangeViolation)
+		return nil, fmt.Errorf(errValueRangeViolation)
 
 	} else if len(rcl) != 0 && len(vrcl) == 0 {
 		fmt.Println("Applying RCL")
 		// Only apply the last rule
 		rule := rcl[len(rcl)-1]
 		if rule.RecipientAddress != RECIPIENT_WILD_CARD && rule.RecipientAddress != tx.ToAddr {
-			return fmt.Errorf(errRecipientAddrViolation)
+			return nil, fmt.Errorf(errRecipientAddrViolation)
 		}
 
 		if rule.EscalationClause == nil {
 			// Rule passes
-			return nil
+			return rule, nil
 		} else {
 			isValid := applyEscalationClause(rule, tx)
 			if !isValid {
-				return fmt.Errorf(errEscalationViolation)
+				return nil, fmt.Errorf(errEscalationViolation)
 			}
 		}
 		// Check if escalation rules exist
 	} else if len(rcl) == 0 && len(vrcl) != 0 {
 		// go over every rule which is applicable, and check if the value matches
-		isValid, _ := applyValueRangeClause(vrcl, tx)
+		isValid, rule := applyValueRangeClause(vrcl, tx)
 		if !isValid {
-			return fmt.Errorf(errValueRangeViolation)
+			return nil, fmt.Errorf(errValueRangeViolation)
 		} else {
-			return nil
+			return rule, nil
 		}
 	} else if len(rcl) != 0 && len(vrcl) != 0 {
 		// A condition where both a value range clause is valid && recipient
 		// If the recipient matches, apply the rule otherwise
 		rclRule := rcl[len(rcl)-1]
 		isValid := false
-		err := errRecipientAddrViolation
 		if rclRule.RecipientAddress == tx.ToAddr {
 			isValid = applyEscalationClause(rclRule, tx)
 			if !isValid {
-				err = errEscalationViolation
+				return nil, fmt.Errorf(errEscalationViolation)
+			} else {
+				return rclRule, nil
 			}
 		} else {
 			_isValid, rule := applyValueRangeClause(vrcl, tx)
 			isValid = _isValid
 			if isValid {
 				isValid = applyEscalationClause(rule, tx)
+				if isValid {
+					return rule, nil
+				} else {
+					return nil, fmt.Errorf(errEscalationViolation)
+				}
 			} else {
-				err = errEscalationViolation
+				return nil, fmt.Errorf(errValueRangeViolation)
 			}
 		}
-		if !isValid {
-			return fmt.Errorf(err)
-		}
 	} else {
-		return fmt.Errorf(errNoRulesFound, sender.String(), tx.TokenAddr)
+		fmt.Println("HEER")
+		return nil, fmt.Errorf(errNoRulesFound, sender.String(), tx.TokenAddr)
 	}
 
-	// Check which sender rule applies
-	return nil
+	return nil, fmt.Errorf(errNoRulesFound, sender.String(), tx.ToAddr)
 }
 
 func applyValueRangeClause(rules ACL, tx *proto.SolaceTx) (bool, ACLRule) {
