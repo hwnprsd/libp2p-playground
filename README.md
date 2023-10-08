@@ -52,12 +52,12 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Spend Cap
 - [x] Sender => Max <Token, Value>
 - [x] Store spend data
-- [ ] Goup wise Spend limits
+- [x] Goup wise Spend limits
 
-- [ ] Sender Groups
+- [x] Sender Groups
 
-- [ ] Recepient Based Rules
-- [ ] Groups are Allowed to send tokens to certain recepients
+- [x] Recepient Based Rules
+- [x] Groups are Allowed to send tokens to certain recepients
 
 - [x] Static way to generate transaction hashes
 - [x] Handle multiple signatures with the same TX signature - Use Nonce!
