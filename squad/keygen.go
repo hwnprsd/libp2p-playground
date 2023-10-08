@@ -57,7 +57,7 @@ func (s *Squad) setupKeygenParty(ctx context.Context) (shouldContinueInit bool, 
 	// Check if localparty save params exists
 	saveDataB, err := s.db.Get([]byte(s.LP_SAVE_DATA_KEY()))
 	if err != nil || saveDataB == nil {
-		pp, err := keygen.GeneratePreParams(3 * time.Minute)
+		pp, err := keygen.GeneratePreParams(10 * time.Minute)
 		if err != nil {
 			log.Println("Error generating pre-params")
 			panic(err)
