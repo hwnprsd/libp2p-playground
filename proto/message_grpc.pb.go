@@ -21,10 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	TransactionService_HandleTransaction_FullMethodName      = "/TransactionService/HandleTransaction"
 	TransactionService_HandleSignatureRequest_FullMethodName = "/TransactionService/HandleSignatureRequest"
-	TransactionService_HandleSigRetrieval_FullMethodName     = "/TransactionService/HandleSigRetrieval"
 	TransactionService_HandleCreateRule_FullMethodName       = "/TransactionService/HandleCreateRule"
 	TransactionService_HandleMetricsQuery_FullMethodName     = "/TransactionService/HandleMetricsQuery"
-	TransactionService_HandleNonceRequest_FullMethodName     = "/TransactionService/HandleNonceRequest"
 	TransactionService_HandleGenericRequest_FullMethodName   = "/TransactionService/HandleGenericRequest"
 )
 
@@ -34,10 +32,8 @@ const (
 type TransactionServiceClient interface {
 	HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleSignatureRequest(ctx context.Context, in *SolaceTx, opts ...grpc.CallOption) (*TransactionResponse, error)
-	HandleSigRetrieval(ctx context.Context, in *SignatureRetrieval, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleCreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleMetricsQuery(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MetricsResponse, error)
-	HandleNonceRequest(ctx context.Context, in *WalletAddrWrapper, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleGenericRequest(ctx context.Context, in *GenericRequestData, opts ...grpc.CallOption) (*TransactionResponse, error)
 }
 
@@ -67,15 +63,6 @@ func (c *transactionServiceClient) HandleSignatureRequest(ctx context.Context, i
 	return out, nil
 }
 
-func (c *transactionServiceClient) HandleSigRetrieval(ctx context.Context, in *SignatureRetrieval, opts ...grpc.CallOption) (*TransactionResponse, error) {
-	out := new(TransactionResponse)
-	err := c.cc.Invoke(ctx, TransactionService_HandleSigRetrieval_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *transactionServiceClient) HandleCreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error) {
 	out := new(TransactionResponse)
 	err := c.cc.Invoke(ctx, TransactionService_HandleCreateRule_FullMethodName, in, out, opts...)
@@ -88,15 +75,6 @@ func (c *transactionServiceClient) HandleCreateRule(ctx context.Context, in *Cre
 func (c *transactionServiceClient) HandleMetricsQuery(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MetricsResponse, error) {
 	out := new(MetricsResponse)
 	err := c.cc.Invoke(ctx, TransactionService_HandleMetricsQuery_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *transactionServiceClient) HandleNonceRequest(ctx context.Context, in *WalletAddrWrapper, opts ...grpc.CallOption) (*TransactionResponse, error) {
-	out := new(TransactionResponse)
-	err := c.cc.Invoke(ctx, TransactionService_HandleNonceRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,10 +96,8 @@ func (c *transactionServiceClient) HandleGenericRequest(ctx context.Context, in 
 type TransactionServiceServer interface {
 	HandleTransaction(context.Context, *Transaction) (*TransactionResponse, error)
 	HandleSignatureRequest(context.Context, *SolaceTx) (*TransactionResponse, error)
-	HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error)
 	HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error)
 	HandleMetricsQuery(context.Context, *Empty) (*MetricsResponse, error)
-	HandleNonceRequest(context.Context, *WalletAddrWrapper) (*TransactionResponse, error)
 	HandleGenericRequest(context.Context, *GenericRequestData) (*TransactionResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
@@ -136,17 +112,11 @@ func (UnimplementedTransactionServiceServer) HandleTransaction(context.Context, 
 func (UnimplementedTransactionServiceServer) HandleSignatureRequest(context.Context, *SolaceTx) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleSignatureRequest not implemented")
 }
-func (UnimplementedTransactionServiceServer) HandleSigRetrieval(context.Context, *SignatureRetrieval) (*TransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HandleSigRetrieval not implemented")
-}
 func (UnimplementedTransactionServiceServer) HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleCreateRule not implemented")
 }
 func (UnimplementedTransactionServiceServer) HandleMetricsQuery(context.Context, *Empty) (*MetricsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleMetricsQuery not implemented")
-}
-func (UnimplementedTransactionServiceServer) HandleNonceRequest(context.Context, *WalletAddrWrapper) (*TransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method HandleNonceRequest not implemented")
 }
 func (UnimplementedTransactionServiceServer) HandleGenericRequest(context.Context, *GenericRequestData) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleGenericRequest not implemented")
@@ -200,24 +170,6 @@ func _TransactionService_HandleSignatureRequest_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TransactionService_HandleSigRetrieval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignatureRetrieval)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TransactionServiceServer).HandleSigRetrieval(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TransactionService_HandleSigRetrieval_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionServiceServer).HandleSigRetrieval(ctx, req.(*SignatureRetrieval))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TransactionService_HandleCreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateRuleData)
 	if err := dec(in); err != nil {
@@ -250,24 +202,6 @@ func _TransactionService_HandleMetricsQuery_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TransactionServiceServer).HandleMetricsQuery(ctx, req.(*Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TransactionService_HandleNonceRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WalletAddrWrapper)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TransactionServiceServer).HandleNonceRequest(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TransactionService_HandleNonceRequest_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransactionServiceServer).HandleNonceRequest(ctx, req.(*WalletAddrWrapper))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -306,20 +240,12 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TransactionService_HandleSignatureRequest_Handler,
 		},
 		{
-			MethodName: "HandleSigRetrieval",
-			Handler:    _TransactionService_HandleSigRetrieval_Handler,
-		},
-		{
 			MethodName: "HandleCreateRule",
 			Handler:    _TransactionService_HandleCreateRule_Handler,
 		},
 		{
 			MethodName: "HandleMetricsQuery",
 			Handler:    _TransactionService_HandleMetricsQuery_Handler,
-		},
-		{
-			MethodName: "HandleNonceRequest",
-			Handler:    _TransactionService_HandleNonceRequest_Handler,
 		},
 		{
 			MethodName: "HandleGenericRequest",

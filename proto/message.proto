@@ -21,13 +21,6 @@ service TransactionService {
 		};
 	}
 
-	rpc HandleSigRetrieval(SignatureRetrieval) returns (TransactionResponse){
-		option (google.api.http) = {
-			post: "/v1/retrive"
-			body: "*"
-		};
-	}
-
 	rpc HandleCreateRule(CreateRuleData) returns (TransactionResponse) {
 		option (google.api.http) = {
 			post: "/v1/create-rule"
@@ -41,20 +34,12 @@ service TransactionService {
 		};
 	}
 
-	rpc HandleNonceRequest(WalletAddrWrapper) returns (TransactionResponse) {
-		option (google.api.http) = {
-			post: "/v1/nonce"
-			body: "*"
-		};
-	}
-
 	rpc HandleGenericRequest(GenericRequestData) returns (TransactionResponse) {
 		option (google.api.http) = {
 			post: "/v1/request"
 			body: "*"
 		};
 	}
-
 }
 
 message GenericRequestData {
@@ -78,10 +63,6 @@ message Payload {
 message TransactionResponse {
 	bool success = 1;
 	string msg = 2;
-}
-
-message SignatureRetrieval {
-	string txHash = 1; 
 }
 
 message CreateRuleData {

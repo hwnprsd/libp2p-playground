@@ -101,24 +101,6 @@ func (n *Node) HandleTransaction(ctx context.Context, req *proto.Transaction) (*
 	return &proto.TransactionResponse{Success: true, Msg: key}, nil
 }
 
-func (n *Node) HandleSigRetrieval(ctx context.Context, req *proto.SignatureRetrieval) (*proto.TransactionResponse, error) {
-	hash, walletAddr, err := squad.ParseSolaceTxHash(req.TxHash)
-	if err != nil {
-		return &proto.TransactionResponse{Success: false, Msg: "Invalid TxHash"}, nil
-	}
-
-	if _, exists := n.squad[walletAddr]; !exists {
-		return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
-	}
-
-	sig, err := n.squad[walletAddr].GetStoredData(hash)
-	if err != nil {
-
-		return &proto.TransactionResponse{Success: false, Msg: "Error fetching squad sig"}, err
-	}
-	return &proto.TransactionResponse{Success: true, Msg: hex.EncodeToString(sig)}, nil
-}
-
 // Create a rule for a smart-contract wallet
 func (n *Node) HandleCreateRule(ctx context.Context, req *proto.CreateRuleData) (*proto.TransactionResponse, error) {
 	// TOOD: Check if the message is coming from the owner of the SCW
@@ -189,16 +171,6 @@ func (n Node) HandleMetricsQuery(ctx context.Context, req *proto.Empty) (*proto.
 		resp.Squads = append(resp.Squads, s)
 	}
 	return resp, nil
-}
-
-func (n *Node) HandleNonceRequest(ctx context.Context, req *proto.WalletAddrWrapper) (*proto.TransactionResponse, error) {
-	walletAddr, err := n.verifyWalletAddr(req.WalletAddr)
-	if err != nil {
-		return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
-	}
-
-	nonce := n.squad[walletAddr].GetCurrentNonce()
-	return &proto.TransactionResponse{Success: true, Msg: fmt.Sprintf("%d", nonce.Int())}, nil
 }
 
 func (n *Node) HandleGenericRequest(ctx context.Context, req *proto.GenericRequestData) (*proto.TransactionResponse, error) {
