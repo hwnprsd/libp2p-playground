@@ -100,7 +100,7 @@ func (s *Squad) GetRules() (*proto.RuleBook, error) {
 		return nil, fmt.Errorf("Rulebook is empty")
 	}
 
-	var ruleBook *proto.RuleBook
+	ruleBook := &proto.RuleBook{}
 	if err := protob.Unmarshal(data, ruleBook); err != nil {
 		log.Println("Error unmarshalling rulebook")
 		return nil, err
