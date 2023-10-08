@@ -63,6 +63,8 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Handle multiple signatures with the same TX signature - Use Nonce!
 - [x] Sender based Nonce management
 
+- [ ] Add URD for rules
+
 ## Metrics
 
 - [x] Peer ID List
