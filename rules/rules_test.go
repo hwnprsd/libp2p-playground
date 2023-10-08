@@ -91,3 +91,22 @@ func Test_Multirules(t *testing.T) {
 	_, err = ValidateTx(tx1, ethSenderAddr, rules)
 	require.NotNil(t, err)
 }
+
+func Test_RuleAddition(t *testing.T) {
+	newRule := &proto.AccessControlRule{
+		WalletAddr:   walletAddr,
+		TokenAddress: "TOKEN_ADDR_1",
+		SenderGroup:  senderGroup1,
+		ValueRangeClause: &proto.ValueRangeClause{
+			MinVal: 100,
+			MaxVal: 10000,
+		},
+	}
+	err := ValidateRuleAddition(rules, newRule)
+	require.Nil(t, err)
+
+	// Should Fail
+	newRule.RecipientAddress = "TO_ADDR_1"
+	err = ValidateRuleAddition(rules, newRule)
+	require.NotNil(t, err)
+}

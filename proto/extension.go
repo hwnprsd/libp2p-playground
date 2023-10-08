@@ -26,33 +26,6 @@ func (sc *SpendingCap) Bytes() []byte {
 	return []byte(fmt.Sprintf("%s%s%d", sc.Sender, sc.TokenAddress, sc.Cap))
 }
 
-// Use IDs to prevent rule collusions while storing new rules
-func (rule *AccessControlRule) Ids() []string {
-	ids := make([]string, 0)
-	isRecipientLocked := rule.RecipientAddress != ""
-	isValueRangeLocked := rule.ValueRangeClause != nil && rule.ValueRangeClause.MaxVal != 0 && rule.ValueRangeClause.MinVal != 0
-	if isRecipientLocked {
-		for _, sender := range rule.SenderGroup.Addresses {
-			var id []byte
-			id = append(id, []byte(sender)...)
-			id = append(id, []byte(rule.TokenAddress)...)
-			id = append(id, []byte(rule.RecipientAddress)...)
-			ids = append(ids, string(id))
-		}
-	}
-	if isValueRangeLocked {
-		for _, sender := range rule.SenderGroup.Addresses {
-			var id []byte
-			id = append(id, []byte(sender)...)
-			id = append(id, []byte(rule.TokenAddress)...)
-			id = append(id, []byte(fmt.Sprintf("%d", rule.ValueRangeClause.MinVal))...)
-			id = append(id, []byte(fmt.Sprintf("%d", rule.ValueRangeClause.MaxVal))...)
-			ids = append(ids, string(id))
-		}
-	}
-	return ids
-}
-
 func (rule *AccessControlRule) Bytes() []byte {
 	var res []byte
 	res = append(res, rule.SenderGroup.Bytes()...)
