@@ -66,3 +66,9 @@ func VerifyEthSignature(message []byte, sig []byte, sender common.Addr) error {
 		return fmt.Errorf("Signature verification failed")
 	}
 }
+
+func EcdsaBytesToAddress(b []byte) string {
+	hash := ethcrypto.Keccak256(b[1:])
+	address := ethcommon.BytesToAddress(hash[12:]).Hex()
+	return address
+}

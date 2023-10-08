@@ -2,6 +2,9 @@ package squad
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"fmt"
 	"log"
 	"time"
 
@@ -11,6 +14,7 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
+	"github.com/solace-labs/skeyn/utils"
 	protoc "google.golang.org/protobuf/proto"
 )
 
@@ -141,15 +145,50 @@ func (s *Squad) handleKeygenEnd(data keygen.LocalPartySaveData) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("Save Data Stored")
+	log.Println("LocalParty Save Data Stored")
 
-	// x, y := data.ECDSAPub.X(), data.ECDSAPub.Y()
-	// pk := ecdsa.PublicKey{
-	// 	Curve: tss.EC(),
-	// 	X:     x,
-	// 	Y:     y,
-	// }
-	// pubKeyBytes := elliptic.Marshal(pk.Curve, pk.X, pk.Y)
 	// n.logger.Sugar().Infof("Session - %s", sAddress)
 	// n.logger.Sugar().Infof("Public Key - %s", hex.EncodeToString(pubKeyBytes))
+}
+
+func (s *Squad) loadSavedata() error {
+	if s.keyGenData.LocalPartySaveData == nil {
+		// Check if it exists in the DB
+		saveDataB, err := s.db.Get([]byte(s.LP_SAVE_DATA_KEY()))
+		if err != nil {
+			log.Println("Error reading SaveData from DB")
+			panic(err)
+		}
+		if saveDataB == nil {
+			log.Println("KeyGen SaveData does not exist")
+			return fmt.Errorf("Keygen data does not exist")
+		}
+		saveData := StoredSaveDataFromBytes(saveDataB)
+		s.keyGenData = saveData
+		if !saveData.Validate() {
+			panic("SaveData is corrupt")
+			// TODO: Handle corrupt save data
+		}
+	}
+	return nil
+}
+
+func (s *Squad) GetPublicKey() (string, error) {
+	err := s.loadSavedata()
+	if err != nil {
+		return "", fmt.Errorf("Err Save Data not found")
+	}
+	data := s.keyGenData.LocalPartySaveData
+	if data == nil {
+		return "", fmt.Errorf("Squad not initialized")
+	}
+
+	x, y := data.ECDSAPub.X(), data.ECDSAPub.Y()
+	pk := ecdsa.PublicKey{
+		Curve: tss.EC(),
+		X:     x,
+		Y:     y,
+	}
+	pubKeyBytes := elliptic.Marshal(pk.Curve, pk.X, pk.Y)
+	return utils.EcdsaBytesToAddress(pubKeyBytes), nil
 }

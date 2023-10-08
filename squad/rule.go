@@ -84,25 +84,34 @@ func (s *Squad) CreateRule(ruleData *proto.CreateRuleData) error {
 	return nil
 }
 
-func (s *Squad) validateTx(tx *proto.SolaceTx) error {
+func (s *Squad) GetRules() (*proto.RuleBook, error) {
 	data, err := s.db.Get([]byte(s.RuleBookKey()))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err != nil {
 		log.Println("Error opening rulebook")
-		return err
+		return nil, err
 	}
 
 	if data == nil {
 		log.Println("Rulebook is empty")
-		return fmt.Errorf("Rulebook is empty")
+		return nil, fmt.Errorf("Rulebook is empty")
 	}
 
-	var ruleBook proto.RuleBook
-	if err := protob.Unmarshal(data, &ruleBook); err != nil {
+	var ruleBook *proto.RuleBook
+	if err := protob.Unmarshal(data, ruleBook); err != nil {
 		log.Println("Error unmarshalling rulebook")
+		return nil, err
+	}
+	return ruleBook, nil
+}
+
+func (s *Squad) validateTx(tx *proto.SolaceTx) error {
+	ruleBook, err := s.GetRules()
+
+	if err != nil {
 		return err
 	}
 
@@ -135,7 +144,7 @@ func (s *Squad) validateTx(tx *proto.SolaceTx) error {
 	// At this point, we are all good - I think
 	spendingCap.CurrentValue = spendingCap.CurrentValue + val
 
-	data, err = protob.Marshal(&ruleBook)
+	data, err := protob.Marshal(ruleBook)
 	if err != nil {
 		return fmt.Errorf("Error marshalling rulebook back to DB - %e", err)
 	}

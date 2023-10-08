@@ -50,25 +50,10 @@ func (s *Squad) InitSigning(tx *proto.SolaceTx) (chan error, error) {
 
 func (s *Squad) setupSigningParty(ctx context.Context, tx *proto.SolaceTx) (shouldContinueInit bool, errChan chan error) {
 	// KeyGen is not completed
-	if s.keyGenData.LocalPartySaveData == nil {
-		// Check if it exists in the DB
-		saveDataB, err := s.db.Get([]byte(s.LP_SAVE_DATA_KEY()))
-		if err != nil {
-			log.Println("Error reading SaveData from DB")
-			panic(err)
-		}
-		if saveDataB == nil {
-			log.Println("KeyGen SaveData does not exist")
-			return false, nil
-		}
-		saveData := StoredSaveDataFromBytes(saveDataB)
-		s.keyGenData = saveData
-		if !saveData.Validate() {
-			panic("SaveData is corrupt")
-			// TODO: Handle corrupt save data
-		}
+	err := s.loadSavedata()
+	if err != nil {
+		return false, nil
 	}
-
 	// In an ongoing session. No need to init
 	// Or node is in a broken state
 	if s.sigParty != nil {
