@@ -19,7 +19,7 @@ func (s *Squad) SetSpendingCap() error {
 	return nil
 }
 
-func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
+func (s *Squad) CreateRule(ruleData *proto.CreateRuleData) error {
 	// TODO: VALIDATION
 	// TODO: Verify with the owner
 	data, err := s.db.Get([]byte(s.RuleBookKey()))
@@ -33,7 +33,7 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	// TODO: Some sort of validation such that the rules don't clash
 
 	if data == nil {
-		ruleBook = proto.RuleBook{WalletAddress: rule.WalletAddress, Rules: make([]*proto.AccessControlRule, 0)}
+		ruleBook = proto.RuleBook{WalletAddress: ruleData.WalletAddress, Rules: make([]*proto.AccessControlRule, 0)}
 	} else {
 		if err := protob.Unmarshal(data, &ruleBook); err != nil {
 			log.Println("Error unmarshalling rulebook")
@@ -42,12 +42,16 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	}
 
 	// Check if the signature is valid
-	sig := utils.HexToBytes(rule.Signature)
+	sig := utils.HexToBytes(ruleData.Signature)
 
 	// TODO: Check for collissions
+	err = rules.ValidateRuleAddition(ruleBook.Rules, ruleData.Rule)
+	if err != nil {
+		return err
+	}
 
 	// Do not need to pass a sender for most cases
-	isValid, err := s.scw.ValidateRuleAddition(rule.Rule.Bytes(), sig, common.ZeroAddr())
+	isValid, err := s.scw.ValidateRuleAddition(ruleData.Rule.Bytes(), sig, common.ZeroAddr())
 	if err != nil {
 		log.Println("Error validating Rule - ", err.Error())
 		return err
@@ -59,7 +63,7 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	}
 
 	// Check if the rule collides with any existing rules
-	ruleBook.Rules = append(ruleBook.Rules, rule.Rule)
+	ruleBook.Rules = append(ruleBook.Rules, ruleData.Rule)
 
 	if err != nil {
 		log.Println("Error marshalling rule to bytes")
@@ -75,6 +79,7 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 	if err != nil {
 		return fmt.Errorf("Error writing rulebook back to DB - %e", err)
 	}
+	log.Println("ACL Rule Stored")
 
 	return nil
 }
