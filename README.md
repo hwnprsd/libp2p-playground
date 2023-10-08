@@ -64,6 +64,7 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Sender based Nonce management
 
 - [ ] Add URD for rules
+- [ ] Add CRUD for Spending Caps
 
 ## Metrics
 
