@@ -25,6 +25,7 @@ const (
 	TransactionService_HandleCreateRule_FullMethodName       = "/TransactionService/HandleCreateRule"
 	TransactionService_HandleMetricsQuery_FullMethodName     = "/TransactionService/HandleMetricsQuery"
 	TransactionService_HandleNonceRequest_FullMethodName     = "/TransactionService/HandleNonceRequest"
+	TransactionService_HandleGenericRequest_FullMethodName   = "/TransactionService/HandleGenericRequest"
 )
 
 // TransactionServiceClient is the client API for TransactionService service.
@@ -37,6 +38,7 @@ type TransactionServiceClient interface {
 	HandleCreateRule(ctx context.Context, in *CreateRuleData, opts ...grpc.CallOption) (*TransactionResponse, error)
 	HandleMetricsQuery(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MetricsResponse, error)
 	HandleNonceRequest(ctx context.Context, in *WalletAddrWrapper, opts ...grpc.CallOption) (*TransactionResponse, error)
+	HandleGenericRequest(ctx context.Context, in *GenericRequestData, opts ...grpc.CallOption) (*TransactionResponse, error)
 }
 
 type transactionServiceClient struct {
@@ -101,6 +103,15 @@ func (c *transactionServiceClient) HandleNonceRequest(ctx context.Context, in *W
 	return out, nil
 }
 
+func (c *transactionServiceClient) HandleGenericRequest(ctx context.Context, in *GenericRequestData, opts ...grpc.CallOption) (*TransactionResponse, error) {
+	out := new(TransactionResponse)
+	err := c.cc.Invoke(ctx, TransactionService_HandleGenericRequest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransactionServiceServer is the server API for TransactionService service.
 // All implementations must embed UnimplementedTransactionServiceServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type TransactionServiceServer interface {
 	HandleCreateRule(context.Context, *CreateRuleData) (*TransactionResponse, error)
 	HandleMetricsQuery(context.Context, *Empty) (*MetricsResponse, error)
 	HandleNonceRequest(context.Context, *WalletAddrWrapper) (*TransactionResponse, error)
+	HandleGenericRequest(context.Context, *GenericRequestData) (*TransactionResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
 
@@ -135,6 +147,9 @@ func (UnimplementedTransactionServiceServer) HandleMetricsQuery(context.Context,
 }
 func (UnimplementedTransactionServiceServer) HandleNonceRequest(context.Context, *WalletAddrWrapper) (*TransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleNonceRequest not implemented")
+}
+func (UnimplementedTransactionServiceServer) HandleGenericRequest(context.Context, *GenericRequestData) (*TransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandleGenericRequest not implemented")
 }
 func (UnimplementedTransactionServiceServer) mustEmbedUnimplementedTransactionServiceServer() {}
 
@@ -257,6 +272,24 @@ func _TransactionService_HandleNonceRequest_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransactionService_HandleGenericRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenericRequestData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).HandleGenericRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransactionService_HandleGenericRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).HandleGenericRequest(ctx, req.(*GenericRequestData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransactionService_ServiceDesc is the grpc.ServiceDesc for TransactionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +320,10 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HandleNonceRequest",
 			Handler:    _TransactionService_HandleNonceRequest_Handler,
+		},
+		{
+			MethodName: "HandleGenericRequest",
+			Handler:    _TransactionService_HandleGenericRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -48,6 +48,18 @@ service TransactionService {
 		};
 	}
 
+	rpc HandleGenericRequest(GenericRequestData) returns (TransactionResponse) {
+		option (google.api.http) = {
+			post: "/v1/request"
+			body: "*"
+		};
+	}
+
+}
+
+message GenericRequestData {
+	string type = 1; // "nonce", "signature", "publicKey", "rulebook"
+	string data = 2; // walletAddr, txHash, walletAddr, walletAddr
 }
 
 // This will be for external Http / GRPC Calls

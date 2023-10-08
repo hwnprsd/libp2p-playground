@@ -14,11 +14,13 @@ import (
 	"github.com/solace-labs/skeyn/common"
 	proto "github.com/solace-labs/skeyn/proto"
 	"github.com/solace-labs/skeyn/squad"
+	"golang.org/x/exp/slices"
 	protob "google.golang.org/protobuf/proto"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // TODO: Handle errors
@@ -197,4 +199,58 @@ func (n *Node) HandleNonceRequest(ctx context.Context, req *proto.WalletAddrWrap
 
 	nonce := n.squad[walletAddr].GetCurrentNonce()
 	return &proto.TransactionResponse{Success: true, Msg: fmt.Sprintf("%d", nonce.Int())}, nil
+}
+
+func (n *Node) HandleGenericRequest(ctx context.Context, req *proto.GenericRequestData) (*proto.TransactionResponse, error) {
+	var walletAddr common.Addr
+	if slices.Contains([]string{"nonce", "publicKey", "rulebook"}, req.Type) {
+		_walletAddr, err := n.verifyWalletAddr(req.Data)
+		if err != nil {
+			return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+		}
+		walletAddr = _walletAddr
+	}
+
+	switch req.Type {
+	case "nonce":
+		nonce := n.squad[walletAddr].GetCurrentNonce()
+		return &proto.TransactionResponse{Success: true, Msg: fmt.Sprintf("%d", nonce.Int())}, nil
+
+	case "publicKey":
+		publicKey, err := n.squad[walletAddr].GetPublicKey()
+		if err != nil {
+			return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+		}
+		return &proto.TransactionResponse{Success: true, Msg: publicKey}, nil
+
+	case "rulebook":
+		rulebook, err := n.squad[walletAddr].GetRules()
+		if err != nil {
+			return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+		}
+		jsonB, err := protojson.Marshal(rulebook)
+		if err != nil {
+			return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+		}
+		return &proto.TransactionResponse{Success: true, Msg: string(jsonB)}, nil
+
+	case "signature":
+		hash, walletAddr, err := squad.ParseSolaceTxHash(req.Data)
+		if err != nil {
+			return &proto.TransactionResponse{Success: false, Msg: "Invalid TxHash"}, nil
+		}
+
+		if _, exists := n.squad[walletAddr]; !exists {
+			return &proto.TransactionResponse{Success: false, Msg: "Invalid Request [2]"}, nil
+		}
+
+		sig, err := n.squad[walletAddr].GetStoredData(hash)
+		if err != nil {
+
+			return &proto.TransactionResponse{Success: false, Msg: "Error fetching squad sig"}, err
+		}
+		return &proto.TransactionResponse{Success: true, Msg: hex.EncodeToString(sig)}, nil
+	}
+
+	return nil, nil
 }
