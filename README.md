@@ -66,6 +66,8 @@ The goal of this repo is to create as complicated a network possible and test va
 - [ ] Add URD for rules
 - [ ] Add CRUD for Spending Caps
 
+- [ ] Read local save data instead of running DKG again
+
 ## Metrics
 
 - [x] Peer ID List
@@ -76,6 +78,6 @@ The goal of this repo is to create as complicated a network possible and test va
 
 ## Smart Contract Wallet Integration
 
-- [ ] Use external RPCs to check for SCW Owners
+- [x] Use external RPCs to check for SCW Owners
 - [ ] Accepts New Rules for wallets, only from Owners
-- [ ] Request to get the public key after DKG
+- [x] Request to get the public key after DKG
