@@ -20,14 +20,14 @@ const (
 	errNoRulesFound           = "[4] No rules found for <Sender, Token> <%s, %s>"
 )
 
-func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) (ACLRule, error) {
+func ValidateTx(tx *proto.SolaceTx, verifiedSender common.Addr, rules ACL) (ACLRule, error) {
 	// This funciton assumes that the sender is already verified
 	senderRules := utils.Filter(rules, func(rule *proto.AccessControlRule) bool {
 		addrs, err := common.NewEthAddrSlice(rule.SenderGroup.Addresses)
 		if err != nil {
 			return false
 		}
-		return slices.Contains(addrs, sender)
+		return slices.Contains(addrs, verifiedSender)
 	})
 
 	// Split the available  rules into [RECIPIENT_LOCKED_RULES] and [VALUE RANGE LOCKED RULES] or ones with [BOTH]
@@ -124,10 +124,10 @@ func ValidateTx(tx *proto.SolaceTx, sender common.Addr, rules ACL) (ACLRule, err
 		}
 	} else {
 		fmt.Println("HEER")
-		return nil, fmt.Errorf(errNoRulesFound, sender.String(), tx.TokenAddr)
+		return nil, fmt.Errorf(errNoRulesFound, verifiedSender.String(), tx.TokenAddr)
 	}
 
-	return nil, fmt.Errorf(errNoRulesFound, sender.String(), tx.ToAddr)
+	return nil, fmt.Errorf(errNoRulesFound, verifiedSender.String(), tx.ToAddr)
 }
 
 func applyValueRangeClause(rules ACL, tx *proto.SolaceTx) (bool, ACLRule) {

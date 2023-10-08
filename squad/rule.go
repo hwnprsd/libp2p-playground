@@ -6,6 +6,7 @@ import (
 
 	"github.com/solace-labs/skeyn/common"
 	"github.com/solace-labs/skeyn/proto"
+	"github.com/solace-labs/skeyn/rules"
 	"github.com/solace-labs/skeyn/utils"
 	protob "google.golang.org/protobuf/proto"
 )
@@ -51,7 +52,7 @@ func (s *Squad) CreateRule(rule *proto.CreateRuleData) error {
 		return fmt.Errorf("Invalid Rule Submitted")
 	}
 
-	// TODO: Check if the rule collides with any existing rules
+	// Check if the rule collides with any existing rules
 	ruleBook.Rules = append(ruleBook.Rules, rule.Rule)
 
 	if err != nil {
@@ -94,20 +95,34 @@ func (s *Squad) validateTx(tx *proto.SolaceTx) error {
 		return err
 	}
 
-	var rule *proto.SpendingCap
+	var spendingCap *proto.SpendingCap
+	for _, r := range ruleBook.SpendingCaps {
+		if r.Sender == tx.Sender.GetAddr() && r.TokenAddress == tx.GetToAddr() {
+			spendingCap = r
+		}
+	}
 
-	if rule == nil {
-		return fmt.Errorf("No rule exists for the given sender")
+	addr, _ := common.NewEthWalletAddressString(tx.Sender.Addr)
+
+	_, err = rules.ValidateTx(tx, addr, ruleBook.Rules)
+	if err != nil {
+		return err
+	}
+
+	// Rules Pass
+	// No spending cap set. Return
+	if spendingCap == nil {
+		return nil
 	}
 
 	val := int32(tx.GetValue())
 
-	if rule.CurrentValue+val > rule.Cap {
-		return fmt.Errorf("Transaction exceeds the cap rule val = %d, curr = %d, cap = %d", val, rule.CurrentValue, rule.Cap)
+	if spendingCap.CurrentValue+val > spendingCap.Cap {
+		return fmt.Errorf("Transaction exceeds the cap rule val = %d, curr = %d, cap = %d", val, spendingCap.CurrentValue, spendingCap.Cap)
 	}
 
 	// At this point, we are all good - I think
-	rule.CurrentValue = rule.CurrentValue + val
+	spendingCap.CurrentValue = spendingCap.CurrentValue + val
 
 	data, err = protob.Marshal(&ruleBook)
 	if err != nil {

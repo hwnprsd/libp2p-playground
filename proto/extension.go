@@ -23,7 +23,7 @@ func PayloadFromID(ID string) []byte {
 }
 
 func (sc *SpendingCap) Bytes() []byte {
-	return []byte(fmt.Sprintf("%s%s%d", sc.Sender, sc.TokenAddress, sc.Cap))
+	return []byte(fmt.Sprintf("%s%s", sc.Sender, sc.TokenAddress, sc.Cap))
 }
 
 // Use IDs to prevent rule collusions while storing new rules
