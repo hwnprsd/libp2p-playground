@@ -23,6 +23,9 @@ func PayloadFromID(ID string) []byte {
 }
 
 func (sc *SpendingCap) Bytes() []byte {
+	if sc == nil {
+		return make([]byte, 0)
+	}
 	return []byte(fmt.Sprintf("%s%s%d", sc.Sender, sc.TokenAddress, sc.Cap))
 }
 
@@ -36,12 +39,18 @@ func (rule *AccessControlRule) Bytes() []byte {
 }
 
 func (clause *SenderGroup) Bytes() []byte {
+	if clause == nil {
+		return make([]byte, 0)
+	}
 	addresses := clause.GetAddresses()
 	slices.Sort(addresses)
 	return []byte(strings.Join(addresses, "+"))
 }
 
 func (clause *ValueRangeClause) Bytes() []byte {
+	if clause == nil {
+		return make([]byte, 0)
+	}
 	return []byte(fmt.Sprintf("%d->%d", clause.MinVal, clause.MaxVal))
 }
 
@@ -50,5 +59,8 @@ func (clause *TimeWindowClause) Bytes() []byte {
 }
 
 func (clause *EscalationClause) Bytes() []byte {
+	if clause == nil {
+		return make([]byte, 0)
+	}
 	return []byte(strings.Join(clause.Addresses, "+") + clause.Logic)
 }
