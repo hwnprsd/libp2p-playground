@@ -27,13 +27,13 @@ func ValidateTx(tx *proto.SolaceTx, verifiedSender common.Addr, rules ACL) (ACLR
 	)
 
 	for _, rule := range senderRules {
-		if rule.TokenAddress != tx.TokenAddr {
+		if rule.TokenAddr != tx.TokenAddr {
 			continue
 		}
 
-		if rule.RecipientAddress != "" && rule.ValueRangeClause == nil {
+		if rule.RecipientAddr != "" && rule.ValueRangeClause == nil {
 			rcl = append(rcl, rule)
-		} else if rule.RecipientAddress == "" && (rule.ValueRangeClause != nil && (rule.ValueRangeClause.MaxVal != 0 || rule.ValueRangeClause.MinVal != 0)) {
+		} else if rule.RecipientAddr == "" && (rule.ValueRangeClause != nil && (rule.ValueRangeClause.MaxVal != 0 || rule.ValueRangeClause.MinVal != 0)) {
 			vrcl = append(vrcl, rule)
 		} else {
 			both = append(both, rule)
@@ -45,7 +45,7 @@ func ValidateTx(tx *proto.SolaceTx, verifiedSender common.Addr, rules ACL) (ACLR
 	if len(both) != 0 {
 		rule := both[len(both)-1]
 
-		if rule.RecipientAddress != RECIPIENT_WILD_CARD && rule.RecipientAddress != tx.ToAddr {
+		if rule.RecipientAddr != RECIPIENT_WILD_CARD && rule.RecipientAddr != tx.ToAddr {
 			return nil, fmt.Errorf(errRecipientAddrViolation)
 		}
 
@@ -63,7 +63,7 @@ func ValidateTx(tx *proto.SolaceTx, verifiedSender common.Addr, rules ACL) (ACLR
 		fmt.Println("Applying RCL")
 		// Only apply the last rule
 		rule := rcl[len(rcl)-1]
-		if rule.RecipientAddress != RECIPIENT_WILD_CARD && rule.RecipientAddress != tx.ToAddr {
+		if rule.RecipientAddr != RECIPIENT_WILD_CARD && rule.RecipientAddr != tx.ToAddr {
 			return nil, fmt.Errorf(errRecipientAddrViolation)
 		}
 
@@ -90,7 +90,7 @@ func ValidateTx(tx *proto.SolaceTx, verifiedSender common.Addr, rules ACL) (ACLR
 		// If the recipient matches, apply the rule otherwise
 		rclRule := rcl[len(rcl)-1]
 		isValid := false
-		if rclRule.RecipientAddress == tx.ToAddr {
+		if rclRule.RecipientAddr == tx.ToAddr {
 			isValid = applyEscalationClause(rclRule, tx)
 			if !isValid {
 				return nil, fmt.Errorf(errEscalationViolation)

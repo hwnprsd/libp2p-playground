@@ -26,26 +26,26 @@ var (
 
 	rules = []*proto.AccessControlRule{
 		{
-			WalletAddr:       walletAddr,
-			TokenAddress:     "TOKEN_ADDR_1",
-			RecipientAddress: "TO_ADDR_1",
-			SenderGroup:      senderGroup1,
+			WalletAddr:    walletAddr,
+			TokenAddr:     "TOKEN_ADDR_1",
+			RecipientAddr: "TO_ADDR_1",
+			SenderGroup:   senderGroup1,
 		}, {
 			// Value Range Clause for sender - To anyone
 			// Value Range should contribute to Spending Caps??
-			WalletAddr:   walletAddr,
-			SenderGroup:  senderGroup1,
-			TokenAddress: "TOKEN_ADDR_2",
+			WalletAddr:  walletAddr,
+			SenderGroup: senderGroup1,
+			TokenAddr:   "TOKEN_ADDR_2",
 			ValueRangeClause: &proto.ValueRangeClause{
 				MinVal: 100,
 				MaxVal: 1000,
 			},
 		}, {
 			// No clauses - to a specific addr
-			WalletAddr:       walletAddr,
-			SenderGroup:      senderGroup1,
-			TokenAddress:     "TOKEN_ADDR_2",
-			RecipientAddress: "TO_ADDR_2",
+			WalletAddr:    walletAddr,
+			SenderGroup:   senderGroup1,
+			TokenAddr:     "TOKEN_ADDR_2",
+			RecipientAddr: "TO_ADDR_2",
 		},
 	}
 )

@@ -20,14 +20,14 @@ const (
 // Use IDs to prevent rule collusions while storing new rules
 func getRuleIds(rule ACLRule) []string {
 	ids := make([]string, 0)
-	isRecipientLocked := rule.RecipientAddress != ""
+	isRecipientLocked := rule.RecipientAddr != ""
 	isValueRangeLocked := rule.ValueRangeClause != nil && rule.ValueRangeClause.MaxVal != 0 && rule.ValueRangeClause.MinVal != 0
 	if isRecipientLocked {
 		for _, sender := range rule.SenderGroup.Addresses {
 			var id []byte
 			id = append(id, []byte(sender)...)
-			id = append(id, []byte(rule.TokenAddress)...)
-			id = append(id, []byte(rule.RecipientAddress)...)
+			id = append(id, []byte(rule.TokenAddr)...)
+			id = append(id, []byte(rule.RecipientAddr)...)
 			ids = append(ids, string(id))
 		}
 	}
@@ -35,7 +35,7 @@ func getRuleIds(rule ACLRule) []string {
 		for _, sender := range rule.SenderGroup.Addresses {
 			var id []byte
 			id = append(id, []byte(sender)...)
-			id = append(id, []byte(rule.TokenAddress)...)
+			id = append(id, []byte(rule.TokenAddr)...)
 			id = append(id, []byte(fmt.Sprintf("%d", rule.ValueRangeClause.MinVal))...)
 			id = append(id, []byte(fmt.Sprintf("%d", rule.ValueRangeClause.MaxVal))...)
 			ids = append(ids, string(id))

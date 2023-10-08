@@ -40,8 +40,8 @@ message AccessControlRule {
 	EscalationClause escalationClause = 5;
 	SenderGroup senderGroup = 6;
 
-	string recipientAddress = 7;
-	string tokenAddress = 8;
+	string recipientAddr = 7;
+	string tokenAddr = 8;
 }
 
 message SenderGroup {
