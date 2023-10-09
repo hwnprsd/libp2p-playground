@@ -155,24 +155,6 @@ func (n *Node) HandleSignatureRequest(ctx context.Context, req *proto.SolaceTx) 
 	return &proto.TransactionResponse{Success: true, Msg: txHash}, nil
 }
 
-func (n Node) HandleMetricsQuery(ctx context.Context, req *proto.Empty) (*proto.MetricsResponse, error) {
-	resp := &proto.MetricsResponse{Peers: make([]string, 0), Squads: make([]*proto.Squad, 0)}
-
-	for _, peer := range n.h().Network().Peers() {
-		resp.Peers = append(resp.Peers, peer.ShortString())
-	}
-	resp.Peers = append(resp.Peers, n.h().ID().ShortString())
-
-	for _, val := range n.squad {
-		s := &proto.Squad{
-			WalletAddr: val.ID,
-			Signatures: val.GetTransactions(),
-		}
-		resp.Squads = append(resp.Squads, s)
-	}
-	return resp, nil
-}
-
 func (n *Node) HandleGenericRequest(ctx context.Context, req *proto.GenericRequestData) (*proto.TransactionResponse, error) {
 	var walletAddr common.Addr
 	if slices.Contains([]string{"nonce", "publicKey", "rulebook"}, req.Type) {
@@ -222,6 +204,27 @@ func (n *Node) HandleGenericRequest(ctx context.Context, req *proto.GenericReque
 			return &proto.TransactionResponse{Success: false, Msg: "Error fetching squad sig"}, err
 		}
 		return &proto.TransactionResponse{Success: true, Msg: hex.EncodeToString(sig)}, nil
+	case "metrics":
+		resp := &proto.MetricsResponse{Peers: make([]string, 0), Squads: make([]*proto.Squad, 0)}
+
+		for _, peer := range n.h().Network().Peers() {
+			resp.Peers = append(resp.Peers, peer.ShortString())
+		}
+		resp.Peers = append(resp.Peers, n.h().ID().ShortString())
+
+		for _, val := range n.squad {
+			s := &proto.Squad{
+				WalletAddr: val.ID,
+				Signatures: val.GetTransactions(),
+			}
+			resp.Squads = append(resp.Squads, s)
+		}
+		jsonB, err := protojson.Marshal(resp)
+		if err != nil {
+			return &proto.TransactionResponse{Success: false, Msg: err.Error()}, nil
+		}
+		return &proto.TransactionResponse{Success: true, Msg: string(jsonB)}, nil
+
 	default:
 		return &proto.TransactionResponse{Success: false, Msg: "Invalid Operation Type"}, nil
 	}

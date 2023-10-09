@@ -44,10 +44,11 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Transaction Parser module - Interface
 - [x] Rules Parser Format
 - [x] Rules / Transaction Enforcer
+- [ ] Create and Sign ETH transactions
 
 ## Rules
 
-- [ ] Multichain Support
+- [ ] Multichain Support (Namespaces)
 
 - [x] Spend Cap
 - [x] Sender => Max <Token, Value>
