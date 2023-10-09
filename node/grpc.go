@@ -222,7 +222,7 @@ func (n *Node) HandleGenericRequest(ctx context.Context, req *proto.GenericReque
 			return &proto.TransactionResponse{Success: false, Msg: "Error fetching squad sig"}, err
 		}
 		return &proto.TransactionResponse{Success: true, Msg: hex.EncodeToString(sig)}, nil
+	default:
+		return &proto.TransactionResponse{Success: false, Msg: "Invalid Operation Type"}, nil
 	}
-
-	return nil, nil
 }
