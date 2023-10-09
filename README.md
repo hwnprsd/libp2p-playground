@@ -82,3 +82,8 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Use external RPCs to check for SCW Owners
 - [ ] Accepts New Rules for wallets, only from Owners
 - [x] Request to get the public key after DKG
+
+## Demo UI
+
+- [ ] Creating Sender Groups
+- [ ] Creating

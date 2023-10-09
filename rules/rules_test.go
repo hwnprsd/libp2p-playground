@@ -94,9 +94,9 @@ func Test_Multirules(t *testing.T) {
 
 func Test_RuleAddition(t *testing.T) {
 	newRule := &proto.AccessControlRule{
-		WalletAddr:   walletAddr,
-		TokenAddress: "TOKEN_ADDR_1",
-		SenderGroup:  senderGroup1,
+		WalletAddr:  walletAddr,
+		TokenAddr:   "TOKEN_ADDR_1",
+		SenderGroup: senderGroup1,
 		ValueRangeClause: &proto.ValueRangeClause{
 			MinVal: 100,
 			MaxVal: 10000,
@@ -106,7 +106,7 @@ func Test_RuleAddition(t *testing.T) {
 	require.Nil(t, err)
 
 	// Should Fail
-	newRule.RecipientAddress = "TO_ADDR_1"
+	newRule.RecipientAddr = "TO_ADDR_1"
 	err = ValidateRuleAddition(rules, newRule)
 	require.NotNil(t, err)
 }
