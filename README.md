@@ -49,24 +49,18 @@ The goal of this repo is to create as complicated a network possible and test va
 ## Rules
 
 - [ ] Multichain Support (Namespaces)
-
 - [x] Spend Cap
 - [x] Sender => Max <Token, Value>
 - [x] Store spend data
 - [x] Goup wise Spend limits
-
 - [x] Sender Groups
-
 - [x] Recepient Based Rules
 - [x] Groups are Allowed to send tokens to certain recepients
-
 - [x] Static way to generate transaction hashes
 - [x] Handle multiple signatures with the same TX signature - Use Nonce!
 - [x] Sender based Nonce management
-
 - [ ] Add URD for rules
 - [ ] Add CRUD for Spending Caps
-
 - [ ] Read local save data instead of running DKG again
 
 ## Metrics
@@ -74,7 +68,6 @@ The goal of this repo is to create as complicated a network possible and test va
 - [x] Peer ID List
 - [x] Squad IDs / Wallet Addresses
 - [x] Stored Signatures per Squad
-
 - [x] Fetching sigantures based on Tx ID
 
 ## Smart Contract Wallet Integration
