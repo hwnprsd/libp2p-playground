@@ -3,6 +3,7 @@ option go_package = "./proto";
 
 import "google/protobuf/timestamp.proto";
 
+// The rulebook which carries everything for a wallet
 message RuleBook {
 	string walletAddress = 1;
 	string ownerAddress = 2;
@@ -41,7 +42,7 @@ message AccessControlRule {
 	SenderGroup senderGroup = 6;
 
 	string recipientAddr = 7;
-	string tokenAddr = 8;
+	string token = 8;
 }
 
 message SenderGroup {
