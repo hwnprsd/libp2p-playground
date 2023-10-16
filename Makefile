@@ -19,6 +19,7 @@ node3:	build
 node4:	build
 	@./p2p -port 5557 -peer /ip4/127.0.0.1/tcp/5555/p2p/QmSfRbwNTxutoB7cHQFQsVDjpKHWhaYkmF2urEauZ6QVHA  -priv  CAMSeTB3AgEBBCBWnkflgxAKP9xM6GFl7sfqW6Tc8I3Z/K4NTsaNThum4qAKBggqhkjOPQMBB6FEA0IABK/2/Zye5ViOr2f4ggPmCaFS6aaXrVrPDMM/ii9G6R50UWRzENhImGkr87vGbT+PD7aSxZhymoBvSxcpFBxQUQc=
 
+# Generate Protobufs 
 proto: 	all
 	@protoc --go_out=. --go-grpc_out=.  --grpc-gateway_out=logtostderr=true:. proto/*.proto
 	@echo "protobuffs written"
